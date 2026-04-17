@@ -1,0 +1,6 @@
+from .build import build_model_from_cfg
+import models.PointTransformer
+import models.PointGPT
+import models.PointGPT_DAPT
+import models.PointTransformerPartSeg_PGST
+import models.PointTransformerSemSeg_PGST

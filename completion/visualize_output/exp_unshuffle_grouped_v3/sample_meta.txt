@@ -1,0 +1,9 @@
+seed=20250406
+num_samples=4
+checkpoint=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/experiments/pertoken_core_gpu1_ratio384/PCN_models/exp_unshuffle_grouped_v3/ckpt-best.pth
+config=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/cfgs/PCN_models/pertoken_core_gpu1_ratio384.yaml
+
+0	car	5ad845ccc1a5795ecc19d582c2bc11b6	CD_L1_mm=14.1443	./visualize_output/exp_unshuffle_grouped_v3/car_0_5ad845ccc1a5
+1	table	178eced0bff71d3653e946fb2184f0c4	CD_L1_mm=9.0739	./visualize_output/exp_unshuffle_grouped_v3/table_1_178eced0bff7
+2	sofa	9ec7016d6978216c94fadb3555028734	CD_L1_mm=7.7423	./visualize_output/exp_unshuffle_grouped_v3/sofa_2_9ec7016d6978
+3	lamp	526251a7530426a4b3c42e318f3affc	CD_L1_mm=6.8692	./visualize_output/exp_unshuffle_grouped_v3/lamp_3_526251a75304

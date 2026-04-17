@@ -1,0 +1,8 @@
+Fixed 4 samples for baseline visualization
+checkpoint=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/experiments/pertoken_core_gpu1_ratio384/PCN_models/exp_baseline_original/ckpt-best.pth
+config=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/cfgs/PCN_models/pertoken_core_gpu1_ratio384.yaml
+
+airplane	02691156	2d7aff5577ae7af0d8ff6111270336a9
+car	02958343	e011a97bdaf8aac4bbb53e58fdcb6353
+chair	03001627	49918114029ce6a63db5e7f805103dd
+lamp	03636649	ec0979097f7c811922a520e8315099fb

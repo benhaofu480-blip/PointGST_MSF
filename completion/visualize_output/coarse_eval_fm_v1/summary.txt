@@ -1,0 +1,11 @@
+=== Coarse Point Quality Evaluation (Flow Matching v1) ===
+Architecture: 384 local + 128 global
+
+sofa         | CD_fine=   8.58 | CD_coarse=  19.98 | CD_local384=  25.95 | CD_global128=  36.86 | CD_vs_FPS_GT=  26.37 | offset: mean=0.0038 max=0.0094 std=0.0017
+chair        | CD_fine=   7.19 | CD_coarse=  15.81 | CD_local384=  14.09 | CD_global128=  41.63 | CD_vs_FPS_GT=  19.27 | offset: mean=0.0032 max=0.0072 std=0.0014
+car          | CD_fine=  10.28 | CD_coarse=  19.52 | CD_local384=  28.16 | CD_global128=  35.66 | CD_vs_FPS_GT=  26.40 | offset: mean=0.0030 max=0.0102 std=0.0015
+watercraft   | CD_fine=   4.91 | CD_coarse=   9.70 | CD_local384=  10.90 | CD_global128=  19.53 | CD_vs_FPS_GT=  13.75 | offset: mean=0.0019 max=0.0060 std=0.0010
+table        | CD_fine=   5.84 | CD_coarse=  12.26 | CD_local384=  12.30 | CD_global128=  25.72 | CD_vs_FPS_GT=  16.09 | offset: mean=0.0022 max=0.0055 std=0.0010
+airplane     | CD_fine=   3.67 | CD_coarse=   9.11 | CD_local384=  17.26 | CD_global128=  16.64 | CD_vs_FPS_GT=  11.97 | offset: mean=0.0015 max=0.0040 std=0.0006
+cabinet      | CD_fine=  10.40 | CD_coarse=  20.46 | CD_local384=  53.57 | CD_global128=  32.32 | CD_vs_FPS_GT=  29.23 | offset: mean=0.0034 max=0.0060 std=0.0012
+lamp         | CD_fine=   2.71 | CD_coarse=   6.47 | CD_local384=   5.97 | CD_global128=  13.94 | CD_vs_FPS_GT=   8.00 | offset: mean=0.0021 max=0.0031 std=0.0005

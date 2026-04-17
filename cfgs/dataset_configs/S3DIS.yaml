@@ -1,0 +1,6 @@
+NAME: S3DISDataset
+root: data/S3DIS
+block_size: 1.0
+stride: 0.5
+num_points: 4096
+num_classes: 13

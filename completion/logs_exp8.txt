@@ -1,0 +1,1089 @@
+nohup: 忽略输入
+2026-03-28 20:13:20,369 - AdaPoinTr_pgst_baseline_gpu0 - INFO - Copy the Config file from cfgs/PCN_models/AdaPoinTr_pgst_baseline_gpu0.yaml to ./experiments/AdaPoinTr_pgst_baseline_gpu0/PCN_models/exp8_bs48_lr3e4_gft/config.yaml
+2026-03-28 20:13:20,369 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.config : cfgs/PCN_models/AdaPoinTr_pgst_baseline_gpu0.yaml
+2026-03-28 20:13:20,369 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.launcher : none
+2026-03-28 20:13:20,370 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.local_rank : 0
+2026-03-28 20:13:20,370 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.num_workers : 2
+2026-03-28 20:13:20,370 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.seed : 0
+2026-03-28 20:13:20,370 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.deterministic : False
+2026-03-28 20:13:20,371 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.sync_bn : False
+2026-03-28 20:13:20,371 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.exp_name : exp8_bs48_lr3e4_gft
+2026-03-28 20:13:20,371 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.start_ckpts : ckpts/AdaPoinTr_ps55.pth
+2026-03-28 20:13:20,371 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.ckpts : None
+2026-03-28 20:13:20,371 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.val_freq : 1
+2026-03-28 20:13:20,372 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.model : fft
+2026-03-28 20:13:20,372 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.resume : False
+2026-03-28 20:13:20,372 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.test : False
+2026-03-28 20:13:20,372 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.mode : None
+2026-03-28 20:13:20,373 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.experiment_path : ./experiments/AdaPoinTr_pgst_baseline_gpu0/PCN_models/exp8_bs48_lr3e4_gft
+2026-03-28 20:13:20,373 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.tfboard_path : ./experiments/AdaPoinTr_pgst_baseline_gpu0/PCN_models/TFBoard/exp8_bs48_lr3e4_gft
+2026-03-28 20:13:20,373 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.log_name : AdaPoinTr_pgst_baseline_gpu0
+2026-03-28 20:13:20,373 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.use_gpu : True
+2026-03-28 20:13:20,374 - AdaPoinTr_pgst_baseline_gpu0 - INFO - args.distributed : False
+2026-03-28 20:13:20,374 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.optimizer = edict()
+2026-03-28 20:13:20,374 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.optimizer.type : AdamW
+2026-03-28 20:13:20,374 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.optimizer.part : all
+2026-03-28 20:13:20,375 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.optimizer.kwargs = edict()
+2026-03-28 20:13:20,375 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.optimizer.kwargs.lr : 0.0003
+2026-03-28 20:13:20,375 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.optimizer.kwargs.weight_decay : 0.0005
+2026-03-28 20:13:20,375 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.scheduler = edict()
+2026-03-28 20:13:20,376 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.scheduler.type : LambdaLR
+2026-03-28 20:13:20,376 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.scheduler.kwargs = edict()
+2026-03-28 20:13:20,376 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.scheduler.kwargs.decay_step : 21
+2026-03-28 20:13:20,376 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.scheduler.kwargs.lr_decay : 0.9
+2026-03-28 20:13:20,376 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.scheduler.kwargs.lowest_decay : 0.02
+2026-03-28 20:13:20,377 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.bnmscheduler = edict()
+2026-03-28 20:13:20,377 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.bnmscheduler.type : Lambda
+2026-03-28 20:13:20,377 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.bnmscheduler.kwargs = edict()
+2026-03-28 20:13:20,377 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.bnmscheduler.kwargs.decay_step : 21
+2026-03-28 20:13:20,377 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.bnmscheduler.kwargs.bn_decay : 0.5
+2026-03-28 20:13:20,378 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.bnmscheduler.kwargs.bn_momentum : 0.9
+2026-03-28 20:13:20,378 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.bnmscheduler.kwargs.lowest_decay : 0.01
+2026-03-28 20:13:20,378 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset = edict()
+2026-03-28 20:13:20,378 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train = edict()
+2026-03-28 20:13:20,378 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_ = edict()
+2026-03-28 20:13:20,379 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_.NAME : PCN
+2026-03-28 20:13:20,379 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_.CATEGORY_FILE_PATH : data/PCN/PCN.json
+2026-03-28 20:13:20,379 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_.N_POINTS : 16384
+2026-03-28 20:13:20,380 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_.N_RENDERINGS : 8
+2026-03-28 20:13:20,380 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_.PARTIAL_POINTS_PATH : data/PCN/%s/partial/%s/%s/%02d.pcd
+2026-03-28 20:13:20,380 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_.COMPLETE_POINTS_PATH : data/PCN/%s/complete/%s/%s.pcd
+2026-03-28 20:13:20,380 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train._base_.CARS : False
+2026-03-28 20:13:20,381 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train.others = edict()
+2026-03-28 20:13:20,381 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train.others.subset : train
+2026-03-28 20:13:20,381 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.train.others.bs : 48
+2026-03-28 20:13:20,382 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val = edict()
+2026-03-28 20:13:20,382 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_ = edict()
+2026-03-28 20:13:20,382 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_.NAME : PCN
+2026-03-28 20:13:20,382 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_.CATEGORY_FILE_PATH : data/PCN/PCN.json
+2026-03-28 20:13:20,383 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_.N_POINTS : 16384
+2026-03-28 20:13:20,383 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_.N_RENDERINGS : 8
+2026-03-28 20:13:20,383 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_.PARTIAL_POINTS_PATH : data/PCN/%s/partial/%s/%s/%02d.pcd
+2026-03-28 20:13:20,383 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_.COMPLETE_POINTS_PATH : data/PCN/%s/complete/%s/%s.pcd
+2026-03-28 20:13:20,384 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val._base_.CARS : False
+2026-03-28 20:13:20,384 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val.others = edict()
+2026-03-28 20:13:20,384 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.val.others.subset : val
+2026-03-28 20:13:20,384 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test = edict()
+2026-03-28 20:13:20,385 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_ = edict()
+2026-03-28 20:13:20,385 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_.NAME : PCN
+2026-03-28 20:13:20,385 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_.CATEGORY_FILE_PATH : data/PCN/PCN.json
+2026-03-28 20:13:20,385 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_.N_POINTS : 16384
+2026-03-28 20:13:20,386 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_.N_RENDERINGS : 8
+2026-03-28 20:13:20,386 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_.PARTIAL_POINTS_PATH : data/PCN/%s/partial/%s/%s/%02d.pcd
+2026-03-28 20:13:20,386 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_.COMPLETE_POINTS_PATH : data/PCN/%s/complete/%s/%s.pcd
+2026-03-28 20:13:20,386 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test._base_.CARS : False
+2026-03-28 20:13:20,387 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test.others = edict()
+2026-03-28 20:13:20,387 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.dataset.test.others.subset : test
+2026-03-28 20:13:20,387 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model = edict()
+2026-03-28 20:13:20,387 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.NAME : AdaPoinTr
+2026-03-28 20:13:20,388 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.num_query : 512
+2026-03-28 20:13:20,388 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.num_points : 16384
+2026-03-28 20:13:20,388 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.center_num : [512, 256]
+2026-03-28 20:13:20,389 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.global_feature_dim : 1024
+2026-03-28 20:13:20,389 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_type : graph
+2026-03-28 20:13:20,389 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_type : fc
+2026-03-28 20:13:20,389 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.use_sama : False
+2026-03-28 20:13:20,389 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.use_mssa : False
+2026-03-28 20:13:20,390 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config = edict()
+2026-03-28 20:13:20,390 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.embed_dim : 384
+2026-03-28 20:13:20,390 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.depth : 6
+2026-03-28 20:13:20,390 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.num_heads : 6
+2026-03-28 20:13:20,391 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.k : 8
+2026-03-28 20:13:20,391 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.n_group : 2
+2026-03-28 20:13:20,391 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.mlp_ratio : 2.0
+2026-03-28 20:13:20,391 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.block_style_list : ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn']
+2026-03-28 20:13:20,392 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.encoder_config.combine_style : concat
+2026-03-28 20:13:20,392 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config = edict()
+2026-03-28 20:13:20,392 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.embed_dim : 384
+2026-03-28 20:13:20,393 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.depth : 8
+2026-03-28 20:13:20,393 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.num_heads : 6
+2026-03-28 20:13:20,393 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.k : 8
+2026-03-28 20:13:20,393 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.n_group : 2
+2026-03-28 20:13:20,394 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.mlp_ratio : 2.0
+2026-03-28 20:13:20,394 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.self_attn_block_style_list : ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn']
+2026-03-28 20:13:20,394 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.self_attn_combine_style : concat
+2026-03-28 20:13:20,394 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.cross_attn_block_style_list : ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn']
+2026-03-28 20:13:20,394 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.model.decoder_config.cross_attn_combine_style : concat
+2026-03-28 20:13:20,395 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.total_bs : 48
+2026-03-28 20:13:20,395 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.step_per_update : 1
+2026-03-28 20:13:20,395 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.max_epoch : 200
+2026-03-28 20:13:20,395 - AdaPoinTr_pgst_baseline_gpu0 - INFO - config.consider_metric : CDL1
+2026-03-28 20:13:20,395 - AdaPoinTr_pgst_baseline_gpu0 - INFO - Distributed training: False
+2026-03-28 20:13:20,396 - AdaPoinTr_pgst_baseline_gpu0 - INFO - Set random seed to 0, deterministic: False
+2026-03-28 20:13:20,417 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=04256520, Name=04256520]
+2026-03-28 20:13:20,445 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=03001627, Name=chair]
+2026-03-28 20:13:20,770 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=02958343, Name=car]
+2026-03-28 20:13:20,824 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=04530566, Name=04530566]
+2026-03-28 20:13:20,841 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=04379243, Name=table]
+2026-03-28 20:13:20,897 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=02691156, Name=airplane]
+2026-03-28 20:13:20,935 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=02933112, Name=02933112]
+2026-03-28 20:13:20,948 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=03636649, Name=lamp]
+2026-03-28 20:13:20,967 - PCNDATASET - INFO - Complete collecting files of the dataset. Total files: 28974
+2026-03-28 20:13:20,987 - PCNDATASET - INFO - [PCNDataset] 磁盘缓存已存在: /home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/cache_pcn/train
+2026-03-28 20:13:21,000 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=04256520, Name=04256520]
+2026-03-28 20:13:21,001 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=03001627, Name=chair]
+2026-03-28 20:13:21,002 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=02958343, Name=car]
+2026-03-28 20:13:21,002 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=04530566, Name=04530566]
+2026-03-28 20:13:21,003 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=04379243, Name=table]
+2026-03-28 20:13:21,005 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=02691156, Name=airplane]
+2026-03-28 20:13:21,006 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=02933112, Name=02933112]
+2026-03-28 20:13:21,006 - PCNDATASET - INFO - Collecting files of Taxonomy [ID=03636649, Name=lamp]
+2026-03-28 20:13:21,006 - PCNDATASET - INFO - Complete collecting files of the dataset. Total files: 800
+2026-03-28 20:13:21,011 - PCNDATASET - INFO - [PCNDataset] 磁盘缓存已存在: /home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/cache_pcn/val
+2026-03-28 20:13:21,012 - MODEL - INFO - Transformer with config {'NAME': 'AdaPoinTr', 'num_query': 512, 'num_points': 16384, 'center_num': [512, 256], 'global_feature_dim': 1024, 'encoder_type': 'graph', 'decoder_type': 'fc', 'use_sama': False, 'use_mssa': False, 'encoder_config': {'embed_dim': 384, 'depth': 6, 'num_heads': 6, 'k': 8, 'n_group': 2, 'mlp_ratio': 2.0, 'block_style_list': ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn'], 'combine_style': 'concat'}, 'decoder_config': {'embed_dim': 384, 'depth': 8, 'num_heads': 6, 'k': 8, 'n_group': 2, 'mlp_ratio': 2.0, 'self_attn_block_style_list': ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn'], 'self_attn_combine_style': 'concat', 'cross_attn_block_style_list': ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn'], 'cross_attn_combine_style': 'concat'}}
+2026-03-28 20:13:38,316 - AdaPoinTr_pgst_baseline_gpu0 - INFO - Loading weights from ckpts/AdaPoinTr_ps55.pth...
+2026-03-28 20:13:38,799 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ckpts @ 361 epoch( performance = {'F-Score': 0.7354954557198824, 'CDL1': 8.807511692333588, 'CDL2': 0.3267159744325085, 'EMDistance': 0.0})
+2026-03-28 20:13:38,836 - AdaPoinTr_pgst_baseline_gpu0 - INFO - Trainable_parameters:
+2026-03-28 20:13:38,837 - AdaPoinTr_pgst_baseline_gpu0 - INFO - =========================
+2026-03-28 20:13:38,837 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.input_trans.weight
+2026-03-28 20:13:38,838 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.input_trans.bias
+2026-03-28 20:13:38,838 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer1.0.weight
+2026-03-28 20:13:38,838 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer1.1.weight
+2026-03-28 20:13:38,838 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer1.1.bias
+2026-03-28 20:13:38,839 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer2.0.weight
+2026-03-28 20:13:38,839 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer2.1.weight
+2026-03-28 20:13:38,839 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer2.1.bias
+2026-03-28 20:13:38,839 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer3.0.weight
+2026-03-28 20:13:38,840 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer3.1.weight
+2026-03-28 20:13:38,840 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer3.1.bias
+2026-03-28 20:13:38,840 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer4.0.weight
+2026-03-28 20:13:38,840 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer4.1.weight
+2026-03-28 20:13:38,841 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.grouper.layer4.1.bias
+2026-03-28 20:13:38,841 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.pos_embed.0.weight
+2026-03-28 20:13:38,841 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.pos_embed.0.bias
+2026-03-28 20:13:38,841 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.pos_embed.2.weight
+2026-03-28 20:13:38,842 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.pos_embed.2.bias
+2026-03-28 20:13:38,842 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.input_proj.0.weight
+2026-03-28 20:13:38,842 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.input_proj.0.bias
+2026-03-28 20:13:38,843 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.input_proj.2.weight
+2026-03-28 20:13:38,843 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.input_proj.2.bias
+2026-03-28 20:13:38,843 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.norm1.weight
+2026-03-28 20:13:38,843 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.norm1.bias
+2026-03-28 20:13:38,844 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.norm2.weight
+2026-03-28 20:13:38,844 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.norm2.bias
+2026-03-28 20:13:38,844 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.mlp.fc1.weight
+2026-03-28 20:13:38,844 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.mlp.fc1.bias
+2026-03-28 20:13:38,845 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.mlp.fc2.weight
+2026-03-28 20:13:38,845 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.mlp.fc2.bias
+2026-03-28 20:13:38,845 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.attn.qkv.weight
+2026-03-28 20:13:38,845 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.attn.qkv.bias
+2026-03-28 20:13:38,846 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.attn.proj.weight
+2026-03-28 20:13:38,846 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.attn.proj.bias
+2026-03-28 20:13:38,846 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.local_attn.knn_map.0.weight
+2026-03-28 20:13:38,846 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.local_attn.knn_map.0.bias
+2026-03-28 20:13:38,846 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.merge_map.weight
+2026-03-28 20:13:38,847 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.0.merge_map.bias
+2026-03-28 20:13:38,847 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.norm1.weight
+2026-03-28 20:13:38,847 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.norm1.bias
+2026-03-28 20:13:38,847 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.norm2.weight
+2026-03-28 20:13:38,848 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.norm2.bias
+2026-03-28 20:13:38,848 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.mlp.fc1.weight
+2026-03-28 20:13:38,848 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.mlp.fc1.bias
+2026-03-28 20:13:38,848 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.mlp.fc2.weight
+2026-03-28 20:13:38,848 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.mlp.fc2.bias
+2026-03-28 20:13:38,848 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.attn.qkv.weight
+2026-03-28 20:13:38,849 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.attn.qkv.bias
+2026-03-28 20:13:38,849 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.attn.proj.weight
+2026-03-28 20:13:38,849 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.1.attn.proj.bias
+2026-03-28 20:13:38,849 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.norm1.weight
+2026-03-28 20:13:38,850 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.norm1.bias
+2026-03-28 20:13:38,850 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.norm2.weight
+2026-03-28 20:13:38,850 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.norm2.bias
+2026-03-28 20:13:38,850 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.mlp.fc1.weight
+2026-03-28 20:13:38,850 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.mlp.fc1.bias
+2026-03-28 20:13:38,851 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.mlp.fc2.weight
+2026-03-28 20:13:38,851 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.mlp.fc2.bias
+2026-03-28 20:13:38,851 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.attn.qkv.weight
+2026-03-28 20:13:38,851 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.attn.qkv.bias
+2026-03-28 20:13:38,851 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.attn.proj.weight
+2026-03-28 20:13:38,852 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.2.attn.proj.bias
+2026-03-28 20:13:38,852 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.norm1.weight
+2026-03-28 20:13:38,852 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.norm1.bias
+2026-03-28 20:13:38,852 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.norm2.weight
+2026-03-28 20:13:38,852 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.norm2.bias
+2026-03-28 20:13:38,853 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.mlp.fc1.weight
+2026-03-28 20:13:38,853 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.mlp.fc1.bias
+2026-03-28 20:13:38,853 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.mlp.fc2.weight
+2026-03-28 20:13:38,853 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.mlp.fc2.bias
+2026-03-28 20:13:38,853 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.attn.qkv.weight
+2026-03-28 20:13:38,854 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.attn.qkv.bias
+2026-03-28 20:13:38,854 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.attn.proj.weight
+2026-03-28 20:13:38,854 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.3.attn.proj.bias
+2026-03-28 20:13:38,854 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.norm1.weight
+2026-03-28 20:13:38,855 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.norm1.bias
+2026-03-28 20:13:38,855 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.norm2.weight
+2026-03-28 20:13:38,855 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.norm2.bias
+2026-03-28 20:13:38,855 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.mlp.fc1.weight
+2026-03-28 20:13:38,855 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.mlp.fc1.bias
+2026-03-28 20:13:38,856 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.mlp.fc2.weight
+2026-03-28 20:13:38,856 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.mlp.fc2.bias
+2026-03-28 20:13:38,856 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.attn.qkv.weight
+2026-03-28 20:13:38,856 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.attn.qkv.bias
+2026-03-28 20:13:38,857 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.attn.proj.weight
+2026-03-28 20:13:38,857 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.4.attn.proj.bias
+2026-03-28 20:13:38,857 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.norm1.weight
+2026-03-28 20:13:38,857 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.norm1.bias
+2026-03-28 20:13:38,857 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.norm2.weight
+2026-03-28 20:13:38,858 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.norm2.bias
+2026-03-28 20:13:38,858 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.mlp.fc1.weight
+2026-03-28 20:13:38,858 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.mlp.fc1.bias
+2026-03-28 20:13:38,858 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.mlp.fc2.weight
+2026-03-28 20:13:38,858 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.mlp.fc2.bias
+2026-03-28 20:13:38,859 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.attn.qkv.weight
+2026-03-28 20:13:38,859 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.attn.qkv.bias
+2026-03-28 20:13:38,859 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.attn.proj.weight
+2026-03-28 20:13:38,859 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.blocks.blocks.5.attn.proj.bias
+2026-03-28 20:13:38,859 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.norm.weight
+2026-03-28 20:13:38,860 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.encoder.norm.bias
+2026-03-28 20:13:38,860 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.increase_dim.0.weight
+2026-03-28 20:13:38,860 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.increase_dim.0.bias
+2026-03-28 20:13:38,860 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.increase_dim.2.weight
+2026-03-28 20:13:38,860 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.increase_dim.2.bias
+2026-03-28 20:13:38,861 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.coarse_pred.0.weight
+2026-03-28 20:13:38,861 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.coarse_pred.0.bias
+2026-03-28 20:13:38,861 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.coarse_pred.2.weight
+2026-03-28 20:13:38,861 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.coarse_pred.2.bias
+2026-03-28 20:13:38,861 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.mlp_query.0.weight
+2026-03-28 20:13:38,862 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.mlp_query.0.bias
+2026-03-28 20:13:38,862 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.mlp_query.2.weight
+2026-03-28 20:13:38,862 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.mlp_query.2.bias
+2026-03-28 20:13:38,862 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.mlp_query.4.weight
+2026-03-28 20:13:38,862 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.mlp_query.4.bias
+2026-03-28 20:13:38,863 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm2.weight
+2026-03-28 20:13:38,863 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm2.bias
+2026-03-28 20:13:38,863 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.mlp.fc1.weight
+2026-03-28 20:13:38,863 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.mlp.fc1.bias
+2026-03-28 20:13:38,863 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.mlp.fc2.weight
+2026-03-28 20:13:38,864 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.mlp.fc2.bias
+2026-03-28 20:13:38,864 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm1.weight
+2026-03-28 20:13:38,864 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm1.bias
+2026-03-28 20:13:38,864 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.self_attn.qkv.weight
+2026-03-28 20:13:38,865 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.self_attn.qkv.bias
+2026-03-28 20:13:38,865 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.self_attn.proj.weight
+2026-03-28 20:13:38,865 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.self_attn.proj.bias
+2026-03-28 20:13:38,865 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.local_self_attn.knn_map.0.weight
+2026-03-28 20:13:38,865 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.local_self_attn.knn_map.0.bias
+2026-03-28 20:13:38,866 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.self_attn_merge_map.weight
+2026-03-28 20:13:38,866 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.self_attn_merge_map.bias
+2026-03-28 20:13:38,866 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm_q.weight
+2026-03-28 20:13:38,866 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm_q.bias
+2026-03-28 20:13:38,867 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm_v.weight
+2026-03-28 20:13:38,867 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.norm_v.bias
+2026-03-28 20:13:38,867 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.q_map.weight
+2026-03-28 20:13:38,867 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.q_map.bias
+2026-03-28 20:13:38,868 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.k_map.weight
+2026-03-28 20:13:38,868 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.k_map.bias
+2026-03-28 20:13:38,868 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.v_map.weight
+2026-03-28 20:13:38,869 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.v_map.bias
+2026-03-28 20:13:38,869 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.proj.weight
+2026-03-28 20:13:38,869 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn.proj.bias
+2026-03-28 20:13:38,869 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.local_cross_attn.knn_map.0.weight
+2026-03-28 20:13:38,870 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.local_cross_attn.knn_map.0.bias
+2026-03-28 20:13:38,870 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn_merge_map.weight
+2026-03-28 20:13:38,870 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.0.cross_attn_merge_map.bias
+2026-03-28 20:13:38,870 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm2.weight
+2026-03-28 20:13:38,871 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm2.bias
+2026-03-28 20:13:38,871 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.mlp.fc1.weight
+2026-03-28 20:13:38,871 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.mlp.fc1.bias
+2026-03-28 20:13:38,871 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.mlp.fc2.weight
+2026-03-28 20:13:38,872 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.mlp.fc2.bias
+2026-03-28 20:13:38,872 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm1.weight
+2026-03-28 20:13:38,872 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm1.bias
+2026-03-28 20:13:38,872 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.self_attn.qkv.weight
+2026-03-28 20:13:38,873 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.self_attn.qkv.bias
+2026-03-28 20:13:38,873 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.self_attn.proj.weight
+2026-03-28 20:13:38,873 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.self_attn.proj.bias
+2026-03-28 20:13:38,873 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm_q.weight
+2026-03-28 20:13:38,874 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm_q.bias
+2026-03-28 20:13:38,874 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm_v.weight
+2026-03-28 20:13:38,874 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.norm_v.bias
+2026-03-28 20:13:38,874 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.q_map.weight
+2026-03-28 20:13:38,875 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.q_map.bias
+2026-03-28 20:13:38,875 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.k_map.weight
+2026-03-28 20:13:38,875 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.k_map.bias
+2026-03-28 20:13:38,876 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.v_map.weight
+2026-03-28 20:13:38,876 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.v_map.bias
+2026-03-28 20:13:38,876 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.proj.weight
+2026-03-28 20:13:38,876 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.1.cross_attn.proj.bias
+2026-03-28 20:13:38,877 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm2.weight
+2026-03-28 20:13:38,877 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm2.bias
+2026-03-28 20:13:38,877 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.mlp.fc1.weight
+2026-03-28 20:13:38,878 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.mlp.fc1.bias
+2026-03-28 20:13:38,878 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.mlp.fc2.weight
+2026-03-28 20:13:38,878 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.mlp.fc2.bias
+2026-03-28 20:13:38,878 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm1.weight
+2026-03-28 20:13:38,879 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm1.bias
+2026-03-28 20:13:38,879 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.self_attn.qkv.weight
+2026-03-28 20:13:38,879 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.self_attn.qkv.bias
+2026-03-28 20:13:38,880 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.self_attn.proj.weight
+2026-03-28 20:13:38,880 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.self_attn.proj.bias
+2026-03-28 20:13:38,880 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm_q.weight
+2026-03-28 20:13:38,880 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm_q.bias
+2026-03-28 20:13:38,881 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm_v.weight
+2026-03-28 20:13:38,881 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.norm_v.bias
+2026-03-28 20:13:38,881 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.q_map.weight
+2026-03-28 20:13:38,882 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.q_map.bias
+2026-03-28 20:13:38,882 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.k_map.weight
+2026-03-28 20:13:38,882 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.k_map.bias
+2026-03-28 20:13:38,882 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.v_map.weight
+2026-03-28 20:13:38,883 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.v_map.bias
+2026-03-28 20:13:38,883 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.proj.weight
+2026-03-28 20:13:38,883 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.2.cross_attn.proj.bias
+2026-03-28 20:13:38,884 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm2.weight
+2026-03-28 20:13:38,884 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm2.bias
+2026-03-28 20:13:38,884 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.mlp.fc1.weight
+2026-03-28 20:13:38,884 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.mlp.fc1.bias
+2026-03-28 20:13:38,885 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.mlp.fc2.weight
+2026-03-28 20:13:38,885 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.mlp.fc2.bias
+2026-03-28 20:13:38,885 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm1.weight
+2026-03-28 20:13:38,885 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm1.bias
+2026-03-28 20:13:38,886 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.self_attn.qkv.weight
+2026-03-28 20:13:38,886 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.self_attn.qkv.bias
+2026-03-28 20:13:38,886 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.self_attn.proj.weight
+2026-03-28 20:13:38,887 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.self_attn.proj.bias
+2026-03-28 20:13:38,887 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm_q.weight
+2026-03-28 20:13:38,887 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm_q.bias
+2026-03-28 20:13:38,887 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm_v.weight
+2026-03-28 20:13:38,888 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.norm_v.bias
+2026-03-28 20:13:38,888 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.q_map.weight
+2026-03-28 20:13:38,888 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.q_map.bias
+2026-03-28 20:13:38,888 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.k_map.weight
+2026-03-28 20:13:38,889 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.k_map.bias
+2026-03-28 20:13:38,889 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.v_map.weight
+2026-03-28 20:13:38,889 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.v_map.bias
+2026-03-28 20:13:38,890 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.proj.weight
+2026-03-28 20:13:38,890 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.3.cross_attn.proj.bias
+2026-03-28 20:13:38,890 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm2.weight
+2026-03-28 20:13:38,890 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm2.bias
+2026-03-28 20:13:38,891 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.mlp.fc1.weight
+2026-03-28 20:13:38,891 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.mlp.fc1.bias
+2026-03-28 20:13:38,891 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.mlp.fc2.weight
+2026-03-28 20:13:38,892 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.mlp.fc2.bias
+2026-03-28 20:13:38,892 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm1.weight
+2026-03-28 20:13:38,892 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm1.bias
+2026-03-28 20:13:38,892 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.self_attn.qkv.weight
+2026-03-28 20:13:38,893 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.self_attn.qkv.bias
+2026-03-28 20:13:38,893 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.self_attn.proj.weight
+2026-03-28 20:13:38,893 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.self_attn.proj.bias
+2026-03-28 20:13:38,893 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm_q.weight
+2026-03-28 20:13:38,893 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm_q.bias
+2026-03-28 20:13:38,894 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm_v.weight
+2026-03-28 20:13:38,894 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.norm_v.bias
+2026-03-28 20:13:38,894 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.q_map.weight
+2026-03-28 20:13:38,894 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.q_map.bias
+2026-03-28 20:13:38,894 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.k_map.weight
+2026-03-28 20:13:38,895 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.k_map.bias
+2026-03-28 20:13:38,895 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.v_map.weight
+2026-03-28 20:13:38,895 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.v_map.bias
+2026-03-28 20:13:38,895 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.proj.weight
+2026-03-28 20:13:38,895 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.4.cross_attn.proj.bias
+2026-03-28 20:13:38,896 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm2.weight
+2026-03-28 20:13:38,896 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm2.bias
+2026-03-28 20:13:38,896 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.mlp.fc1.weight
+2026-03-28 20:13:38,896 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.mlp.fc1.bias
+2026-03-28 20:13:38,896 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.mlp.fc2.weight
+2026-03-28 20:13:38,896 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.mlp.fc2.bias
+2026-03-28 20:13:38,897 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm1.weight
+2026-03-28 20:13:38,897 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm1.bias
+2026-03-28 20:13:38,897 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.self_attn.qkv.weight
+2026-03-28 20:13:38,897 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.self_attn.qkv.bias
+2026-03-28 20:13:38,897 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.self_attn.proj.weight
+2026-03-28 20:13:38,898 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.self_attn.proj.bias
+2026-03-28 20:13:38,898 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm_q.weight
+2026-03-28 20:13:38,898 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm_q.bias
+2026-03-28 20:13:38,898 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm_v.weight
+2026-03-28 20:13:38,898 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.norm_v.bias
+2026-03-28 20:13:38,899 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.q_map.weight
+2026-03-28 20:13:38,899 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.q_map.bias
+2026-03-28 20:13:38,899 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.k_map.weight
+2026-03-28 20:13:38,899 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.k_map.bias
+2026-03-28 20:13:38,899 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.v_map.weight
+2026-03-28 20:13:38,900 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.v_map.bias
+2026-03-28 20:13:38,900 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.proj.weight
+2026-03-28 20:13:38,900 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.5.cross_attn.proj.bias
+2026-03-28 20:13:38,900 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm2.weight
+2026-03-28 20:13:38,900 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm2.bias
+2026-03-28 20:13:38,901 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.mlp.fc1.weight
+2026-03-28 20:13:38,901 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.mlp.fc1.bias
+2026-03-28 20:13:38,901 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.mlp.fc2.weight
+2026-03-28 20:13:38,901 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.mlp.fc2.bias
+2026-03-28 20:13:38,901 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm1.weight
+2026-03-28 20:13:38,902 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm1.bias
+2026-03-28 20:13:38,902 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.self_attn.qkv.weight
+2026-03-28 20:13:38,902 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.self_attn.qkv.bias
+2026-03-28 20:13:38,902 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.self_attn.proj.weight
+2026-03-28 20:13:38,902 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.self_attn.proj.bias
+2026-03-28 20:13:38,903 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm_q.weight
+2026-03-28 20:13:38,903 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm_q.bias
+2026-03-28 20:13:38,903 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm_v.weight
+2026-03-28 20:13:38,903 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.norm_v.bias
+2026-03-28 20:13:38,903 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.q_map.weight
+2026-03-28 20:13:38,904 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.q_map.bias
+2026-03-28 20:13:38,904 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.k_map.weight
+2026-03-28 20:13:38,904 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.k_map.bias
+2026-03-28 20:13:38,904 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.v_map.weight
+2026-03-28 20:13:38,904 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.v_map.bias
+2026-03-28 20:13:38,905 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.proj.weight
+2026-03-28 20:13:38,905 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.6.cross_attn.proj.bias
+2026-03-28 20:13:38,905 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm2.weight
+2026-03-28 20:13:38,905 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm2.bias
+2026-03-28 20:13:38,905 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.mlp.fc1.weight
+2026-03-28 20:13:38,906 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.mlp.fc1.bias
+2026-03-28 20:13:38,906 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.mlp.fc2.weight
+2026-03-28 20:13:38,906 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.mlp.fc2.bias
+2026-03-28 20:13:38,906 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm1.weight
+2026-03-28 20:13:38,906 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm1.bias
+2026-03-28 20:13:38,907 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.self_attn.qkv.weight
+2026-03-28 20:13:38,907 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.self_attn.qkv.bias
+2026-03-28 20:13:38,907 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.self_attn.proj.weight
+2026-03-28 20:13:38,907 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.self_attn.proj.bias
+2026-03-28 20:13:38,907 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm_q.weight
+2026-03-28 20:13:38,908 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm_q.bias
+2026-03-28 20:13:38,908 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm_v.weight
+2026-03-28 20:13:38,908 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.norm_v.bias
+2026-03-28 20:13:38,908 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.q_map.weight
+2026-03-28 20:13:38,908 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.q_map.bias
+2026-03-28 20:13:38,909 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.k_map.weight
+2026-03-28 20:13:38,909 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.k_map.bias
+2026-03-28 20:13:38,909 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.v_map.weight
+2026-03-28 20:13:38,909 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.v_map.bias
+2026-03-28 20:13:38,909 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.proj.weight
+2026-03-28 20:13:38,910 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.decoder.blocks.blocks.7.cross_attn.proj.bias
+2026-03-28 20:13:38,910 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.query_ranking.0.weight
+2026-03-28 20:13:38,910 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.query_ranking.0.bias
+2026-03-28 20:13:38,910 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.query_ranking.2.weight
+2026-03-28 20:13:38,910 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.query_ranking.2.bias
+2026-03-28 20:13:38,911 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.query_ranking.4.weight
+2026-03-28 20:13:38,911 - AdaPoinTr_pgst_baseline_gpu0 - INFO - base_model.query_ranking.4.bias
+2026-03-28 20:13:38,911 - AdaPoinTr_pgst_baseline_gpu0 - INFO - decode_head.layer.fc1.weight
+2026-03-28 20:13:38,911 - AdaPoinTr_pgst_baseline_gpu0 - INFO - decode_head.layer.fc1.bias
+2026-03-28 20:13:38,911 - AdaPoinTr_pgst_baseline_gpu0 - INFO - decode_head.layer.fc2.weight
+2026-03-28 20:13:38,912 - AdaPoinTr_pgst_baseline_gpu0 - INFO - decode_head.layer.fc2.bias
+2026-03-28 20:13:38,912 - AdaPoinTr_pgst_baseline_gpu0 - INFO - increase_dim.0.weight
+2026-03-28 20:13:38,912 - AdaPoinTr_pgst_baseline_gpu0 - INFO - increase_dim.0.bias
+2026-03-28 20:13:38,912 - AdaPoinTr_pgst_baseline_gpu0 - INFO - increase_dim.1.weight
+2026-03-28 20:13:38,913 - AdaPoinTr_pgst_baseline_gpu0 - INFO - increase_dim.1.bias
+2026-03-28 20:13:38,913 - AdaPoinTr_pgst_baseline_gpu0 - INFO - increase_dim.3.weight
+2026-03-28 20:13:38,913 - AdaPoinTr_pgst_baseline_gpu0 - INFO - increase_dim.3.bias
+2026-03-28 20:13:38,913 - AdaPoinTr_pgst_baseline_gpu0 - INFO - reduce_map.weight
+2026-03-28 20:13:38,913 - AdaPoinTr_pgst_baseline_gpu0 - INFO - reduce_map.bias
+2026-03-28 20:13:38,914 - AdaPoinTr_pgst_baseline_gpu0 - INFO - =========================
+2026-03-28 20:13:38,914 - AdaPoinTr_pgst_baseline_gpu0 - INFO - Untrainable_parameters:
+2026-03-28 20:13:38,914 - AdaPoinTr_pgst_baseline_gpu0 - INFO - =========================
+2026-03-28 20:13:38,916 - AdaPoinTr_pgst_baseline_gpu0 - INFO - =========================
+2026-03-28 20:13:38,916 - AdaPoinTr_pgst_baseline_gpu0 - INFO - Using Data parallel ...
+Create experiment path successfully at ./experiments/AdaPoinTr_pgst_baseline_gpu0/PCN_models/exp8_bs48_lr3e4_gft
+Create TFBoard path successfully at ./experiments/AdaPoinTr_pgst_baseline_gpu0/PCN_models/TFBoard/exp8_bs48_lr3e4_gft
+using group version 2
+Not loaded because of shape comflictions: ['decode_head.layer.fc2.weight', 'decode_head.layer.fc2.bias']
+only the following parameter is optimized
+base_model.grouper.input_trans.weight
+base_model.grouper.input_trans.bias
+base_model.grouper.layer1.0.weight
+base_model.grouper.layer1.1.weight
+base_model.grouper.layer1.1.bias
+base_model.grouper.layer2.0.weight
+base_model.grouper.layer2.1.weight
+base_model.grouper.layer2.1.bias
+base_model.grouper.layer3.0.weight
+base_model.grouper.layer3.1.weight
+base_model.grouper.layer3.1.bias
+base_model.grouper.layer4.0.weight
+base_model.grouper.layer4.1.weight
+base_model.grouper.layer4.1.bias
+base_model.pos_embed.0.weight
+base_model.pos_embed.0.bias
+base_model.pos_embed.2.weight
+base_model.pos_embed.2.bias
+base_model.input_proj.0.weight
+base_model.input_proj.0.bias
+base_model.input_proj.2.weight
+base_model.input_proj.2.bias
+base_model.encoder.blocks.blocks.0.norm1.weight
+base_model.encoder.blocks.blocks.0.norm1.bias
+base_model.encoder.blocks.blocks.0.norm2.weight
+base_model.encoder.blocks.blocks.0.norm2.bias
+base_model.encoder.blocks.blocks.0.mlp.fc1.weight
+base_model.encoder.blocks.blocks.0.mlp.fc1.bias
+base_model.encoder.blocks.blocks.0.mlp.fc2.weight
+base_model.encoder.blocks.blocks.0.mlp.fc2.bias
+base_model.encoder.blocks.blocks.0.attn.qkv.weight
+base_model.encoder.blocks.blocks.0.attn.qkv.bias
+base_model.encoder.blocks.blocks.0.attn.proj.weight
+base_model.encoder.blocks.blocks.0.attn.proj.bias
+base_model.encoder.blocks.blocks.0.local_attn.knn_map.0.weight
+base_model.encoder.blocks.blocks.0.local_attn.knn_map.0.bias
+base_model.encoder.blocks.blocks.0.merge_map.weight
+base_model.encoder.blocks.blocks.0.merge_map.bias
+base_model.encoder.blocks.blocks.1.norm1.weight
+base_model.encoder.blocks.blocks.1.norm1.bias
+base_model.encoder.blocks.blocks.1.norm2.weight
+base_model.encoder.blocks.blocks.1.norm2.bias
+base_model.encoder.blocks.blocks.1.mlp.fc1.weight
+base_model.encoder.blocks.blocks.1.mlp.fc1.bias
+base_model.encoder.blocks.blocks.1.mlp.fc2.weight
+base_model.encoder.blocks.blocks.1.mlp.fc2.bias
+base_model.encoder.blocks.blocks.1.attn.qkv.weight
+base_model.encoder.blocks.blocks.1.attn.qkv.bias
+base_model.encoder.blocks.blocks.1.attn.proj.weight
+base_model.encoder.blocks.blocks.1.attn.proj.bias
+base_model.encoder.blocks.blocks.2.norm1.weight
+base_model.encoder.blocks.blocks.2.norm1.bias
+base_model.encoder.blocks.blocks.2.norm2.weight
+base_model.encoder.blocks.blocks.2.norm2.bias
+base_model.encoder.blocks.blocks.2.mlp.fc1.weight
+base_model.encoder.blocks.blocks.2.mlp.fc1.bias
+base_model.encoder.blocks.blocks.2.mlp.fc2.weight
+base_model.encoder.blocks.blocks.2.mlp.fc2.bias
+base_model.encoder.blocks.blocks.2.attn.qkv.weight
+base_model.encoder.blocks.blocks.2.attn.qkv.bias
+base_model.encoder.blocks.blocks.2.attn.proj.weight
+base_model.encoder.blocks.blocks.2.attn.proj.bias
+base_model.encoder.blocks.blocks.3.norm1.weight
+base_model.encoder.blocks.blocks.3.norm1.bias
+base_model.encoder.blocks.blocks.3.norm2.weight
+base_model.encoder.blocks.blocks.3.norm2.bias
+base_model.encoder.blocks.blocks.3.mlp.fc1.weight
+base_model.encoder.blocks.blocks.3.mlp.fc1.bias
+base_model.encoder.blocks.blocks.3.mlp.fc2.weight
+base_model.encoder.blocks.blocks.3.mlp.fc2.bias
+base_model.encoder.blocks.blocks.3.attn.qkv.weight
+base_model.encoder.blocks.blocks.3.attn.qkv.bias
+base_model.encoder.blocks.blocks.3.attn.proj.weight
+base_model.encoder.blocks.blocks.3.attn.proj.bias
+base_model.encoder.blocks.blocks.4.norm1.weight
+base_model.encoder.blocks.blocks.4.norm1.bias
+base_model.encoder.blocks.blocks.4.norm2.weight
+base_model.encoder.blocks.blocks.4.norm2.bias
+base_model.encoder.blocks.blocks.4.mlp.fc1.weight
+base_model.encoder.blocks.blocks.4.mlp.fc1.bias
+base_model.encoder.blocks.blocks.4.mlp.fc2.weight
+base_model.encoder.blocks.blocks.4.mlp.fc2.bias
+base_model.encoder.blocks.blocks.4.attn.qkv.weight
+base_model.encoder.blocks.blocks.4.attn.qkv.bias
+base_model.encoder.blocks.blocks.4.attn.proj.weight
+base_model.encoder.blocks.blocks.4.attn.proj.bias
+base_model.encoder.blocks.blocks.5.norm1.weight
+base_model.encoder.blocks.blocks.5.norm1.bias
+base_model.encoder.blocks.blocks.5.norm2.weight
+base_model.encoder.blocks.blocks.5.norm2.bias
+base_model.encoder.blocks.blocks.5.mlp.fc1.weight
+base_model.encoder.blocks.blocks.5.mlp.fc1.bias
+base_model.encoder.blocks.blocks.5.mlp.fc2.weight
+base_model.encoder.blocks.blocks.5.mlp.fc2.bias
+base_model.encoder.blocks.blocks.5.attn.qkv.weight
+base_model.encoder.blocks.blocks.5.attn.qkv.bias
+base_model.encoder.blocks.blocks.5.attn.proj.weight
+base_model.encoder.blocks.blocks.5.attn.proj.bias
+base_model.encoder.norm.weight
+base_model.encoder.norm.bias
+base_model.increase_dim.0.weight
+base_model.increase_dim.0.bias
+base_model.increase_dim.2.weight
+base_model.increase_dim.2.bias
+base_model.coarse_pred.0.weight
+base_model.coarse_pred.0.bias
+base_model.coarse_pred.2.weight
+base_model.coarse_pred.2.bias
+base_model.mlp_query.0.weight
+base_model.mlp_query.0.bias
+base_model.mlp_query.2.weight
+base_model.mlp_query.2.bias
+base_model.mlp_query.4.weight
+base_model.mlp_query.4.bias
+base_model.decoder.blocks.blocks.0.norm2.weight
+base_model.decoder.blocks.blocks.0.norm2.bias
+base_model.decoder.blocks.blocks.0.mlp.fc1.weight
+base_model.decoder.blocks.blocks.0.mlp.fc1.bias
+base_model.decoder.blocks.blocks.0.mlp.fc2.weight
+base_model.decoder.blocks.blocks.0.mlp.fc2.bias
+base_model.decoder.blocks.blocks.0.norm1.weight
+base_model.decoder.blocks.blocks.0.norm1.bias
+base_model.decoder.blocks.blocks.0.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.0.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.0.self_attn.proj.weight
+base_model.decoder.blocks.blocks.0.self_attn.proj.bias
+base_model.decoder.blocks.blocks.0.local_self_attn.knn_map.0.weight
+base_model.decoder.blocks.blocks.0.local_self_attn.knn_map.0.bias
+base_model.decoder.blocks.blocks.0.self_attn_merge_map.weight
+base_model.decoder.blocks.blocks.0.self_attn_merge_map.bias
+base_model.decoder.blocks.blocks.0.norm_q.weight
+base_model.decoder.blocks.blocks.0.norm_q.bias
+base_model.decoder.blocks.blocks.0.norm_v.weight
+base_model.decoder.blocks.blocks.0.norm_v.bias
+base_model.decoder.blocks.blocks.0.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.0.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.0.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.0.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.0.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.0.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.0.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.0.cross_attn.proj.bias
+base_model.decoder.blocks.blocks.0.local_cross_attn.knn_map.0.weight
+base_model.decoder.blocks.blocks.0.local_cross_attn.knn_map.0.bias
+base_model.decoder.blocks.blocks.0.cross_attn_merge_map.weight
+base_model.decoder.blocks.blocks.0.cross_attn_merge_map.bias
+base_model.decoder.blocks.blocks.1.norm2.weight
+base_model.decoder.blocks.blocks.1.norm2.bias
+base_model.decoder.blocks.blocks.1.mlp.fc1.weight
+base_model.decoder.blocks.blocks.1.mlp.fc1.bias
+base_model.decoder.blocks.blocks.1.mlp.fc2.weight
+base_model.decoder.blocks.blocks.1.mlp.fc2.bias
+base_model.decoder.blocks.blocks.1.norm1.weight
+base_model.decoder.blocks.blocks.1.norm1.bias
+base_model.decoder.blocks.blocks.1.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.1.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.1.self_attn.proj.weight
+base_model.decoder.blocks.blocks.1.self_attn.proj.bias
+base_model.decoder.blocks.blocks.1.norm_q.weight
+base_model.decoder.blocks.blocks.1.norm_q.bias
+base_model.decoder.blocks.blocks.1.norm_v.weight
+base_model.decoder.blocks.blocks.1.norm_v.bias
+base_model.decoder.blocks.blocks.1.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.1.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.1.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.1.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.1.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.1.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.1.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.1.cross_attn.proj.bias
+base_model.decoder.blocks.blocks.2.norm2.weight
+base_model.decoder.blocks.blocks.2.norm2.bias
+base_model.decoder.blocks.blocks.2.mlp.fc1.weight
+base_model.decoder.blocks.blocks.2.mlp.fc1.bias
+base_model.decoder.blocks.blocks.2.mlp.fc2.weight
+base_model.decoder.blocks.blocks.2.mlp.fc2.bias
+base_model.decoder.blocks.blocks.2.norm1.weight
+base_model.decoder.blocks.blocks.2.norm1.bias
+base_model.decoder.blocks.blocks.2.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.2.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.2.self_attn.proj.weight
+base_model.decoder.blocks.blocks.2.self_attn.proj.bias
+base_model.decoder.blocks.blocks.2.norm_q.weight
+base_model.decoder.blocks.blocks.2.norm_q.bias
+base_model.decoder.blocks.blocks.2.norm_v.weight
+base_model.decoder.blocks.blocks.2.norm_v.bias
+base_model.decoder.blocks.blocks.2.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.2.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.2.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.2.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.2.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.2.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.2.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.2.cross_attn.proj.bias
+base_model.decoder.blocks.blocks.3.norm2.weight
+base_model.decoder.blocks.blocks.3.norm2.bias
+base_model.decoder.blocks.blocks.3.mlp.fc1.weight
+base_model.decoder.blocks.blocks.3.mlp.fc1.bias
+base_model.decoder.blocks.blocks.3.mlp.fc2.weight
+base_model.decoder.blocks.blocks.3.mlp.fc2.bias
+base_model.decoder.blocks.blocks.3.norm1.weight
+base_model.decoder.blocks.blocks.3.norm1.bias
+base_model.decoder.blocks.blocks.3.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.3.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.3.self_attn.proj.weight
+base_model.decoder.blocks.blocks.3.self_attn.proj.bias
+base_model.decoder.blocks.blocks.3.norm_q.weight
+base_model.decoder.blocks.blocks.3.norm_q.bias
+base_model.decoder.blocks.blocks.3.norm_v.weight
+base_model.decoder.blocks.blocks.3.norm_v.bias
+base_model.decoder.blocks.blocks.3.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.3.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.3.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.3.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.3.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.3.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.3.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.3.cross_attn.proj.bias
+base_model.decoder.blocks.blocks.4.norm2.weight
+base_model.decoder.blocks.blocks.4.norm2.bias
+base_model.decoder.blocks.blocks.4.mlp.fc1.weight
+base_model.decoder.blocks.blocks.4.mlp.fc1.bias
+base_model.decoder.blocks.blocks.4.mlp.fc2.weight
+base_model.decoder.blocks.blocks.4.mlp.fc2.bias
+base_model.decoder.blocks.blocks.4.norm1.weight
+base_model.decoder.blocks.blocks.4.norm1.bias
+base_model.decoder.blocks.blocks.4.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.4.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.4.self_attn.proj.weight
+base_model.decoder.blocks.blocks.4.self_attn.proj.bias
+base_model.decoder.blocks.blocks.4.norm_q.weight
+base_model.decoder.blocks.blocks.4.norm_q.bias
+base_model.decoder.blocks.blocks.4.norm_v.weight
+base_model.decoder.blocks.blocks.4.norm_v.bias
+base_model.decoder.blocks.blocks.4.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.4.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.4.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.4.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.4.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.4.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.4.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.4.cross_attn.proj.bias
+base_model.decoder.blocks.blocks.5.norm2.weight
+base_model.decoder.blocks.blocks.5.norm2.bias
+base_model.decoder.blocks.blocks.5.mlp.fc1.weight
+base_model.decoder.blocks.blocks.5.mlp.fc1.bias
+base_model.decoder.blocks.blocks.5.mlp.fc2.weight
+base_model.decoder.blocks.blocks.5.mlp.fc2.bias
+base_model.decoder.blocks.blocks.5.norm1.weight
+base_model.decoder.blocks.blocks.5.norm1.bias
+base_model.decoder.blocks.blocks.5.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.5.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.5.self_attn.proj.weight
+base_model.decoder.blocks.blocks.5.self_attn.proj.bias
+base_model.decoder.blocks.blocks.5.norm_q.weight
+base_model.decoder.blocks.blocks.5.norm_q.bias
+base_model.decoder.blocks.blocks.5.norm_v.weight
+base_model.decoder.blocks.blocks.5.norm_v.bias
+base_model.decoder.blocks.blocks.5.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.5.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.5.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.5.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.5.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.5.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.5.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.5.cross_attn.proj.bias
+base_model.decoder.blocks.blocks.6.norm2.weight
+base_model.decoder.blocks.blocks.6.norm2.bias
+base_model.decoder.blocks.blocks.6.mlp.fc1.weight
+base_model.decoder.blocks.blocks.6.mlp.fc1.bias
+base_model.decoder.blocks.blocks.6.mlp.fc2.weight
+base_model.decoder.blocks.blocks.6.mlp.fc2.bias
+base_model.decoder.blocks.blocks.6.norm1.weight
+base_model.decoder.blocks.blocks.6.norm1.bias
+base_model.decoder.blocks.blocks.6.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.6.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.6.self_attn.proj.weight
+base_model.decoder.blocks.blocks.6.self_attn.proj.bias
+base_model.decoder.blocks.blocks.6.norm_q.weight
+base_model.decoder.blocks.blocks.6.norm_q.bias
+base_model.decoder.blocks.blocks.6.norm_v.weight
+base_model.decoder.blocks.blocks.6.norm_v.bias
+base_model.decoder.blocks.blocks.6.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.6.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.6.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.6.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.6.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.6.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.6.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.6.cross_attn.proj.bias
+base_model.decoder.blocks.blocks.7.norm2.weight
+base_model.decoder.blocks.blocks.7.norm2.bias
+base_model.decoder.blocks.blocks.7.mlp.fc1.weight
+base_model.decoder.blocks.blocks.7.mlp.fc1.bias
+base_model.decoder.blocks.blocks.7.mlp.fc2.weight
+base_model.decoder.blocks.blocks.7.mlp.fc2.bias
+base_model.decoder.blocks.blocks.7.norm1.weight
+base_model.decoder.blocks.blocks.7.norm1.bias
+base_model.decoder.blocks.blocks.7.self_attn.qkv.weight
+base_model.decoder.blocks.blocks.7.self_attn.qkv.bias
+base_model.decoder.blocks.blocks.7.self_attn.proj.weight
+base_model.decoder.blocks.blocks.7.self_attn.proj.bias
+base_model.decoder.blocks.blocks.7.norm_q.weight
+base_model.decoder.blocks.blocks.7.norm_q.bias
+base_model.decoder.blocks.blocks.7.norm_v.weight
+base_model.decoder.blocks.blocks.7.norm_v.bias
+base_model.decoder.blocks.blocks.7.cross_attn.q_map.weight
+base_model.decoder.blocks.blocks.7.cross_attn.q_map.bias
+base_model.decoder.blocks.blocks.7.cross_attn.k_map.weight
+base_model.decoder.blocks.blocks.7.cross_attn.k_map.bias
+base_model.decoder.blocks.blocks.7.cross_attn.v_map.weight
+base_model.decoder.blocks.blocks.7.cross_attn.v_map.bias
+base_model.decoder.blocks.blocks.7.cross_attn.proj.weight
+base_model.decoder.blocks.blocks.7.cross_attn.proj.bias
+base_model.query_ranking.0.weight
+base_model.query_ranking.0.bias
+base_model.query_ranking.2.weight
+base_model.query_ranking.2.bias
+base_model.query_ranking.4.weight
+base_model.query_ranking.4.bias
+decode_head.layer.fc1.weight
+decode_head.layer.fc1.bias
+decode_head.layer.fc2.weight
+decode_head.layer.fc2.bias
+increase_dim.0.weight
+increase_dim.0.bias
+increase_dim.1.weight
+increase_dim.1.bias
+2026-03-28 20:13:38,934 - AdaPoinTr_pgst_baseline_gpu0 - INFO - >> Trainable Parameters:
+2026-03-28 20:13:38,936 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,937 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |Name                                                                     |Dtype            |Shape               |#Params    |
+2026-03-28 20:13:38,937 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,937 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.input_trans.weight                             |torch.float32    |(8, 3, 1)           |24         |
+2026-03-28 20:13:38,937 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,938 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.input_trans.bias                               |torch.float32    |(8,)                |8          |
+2026-03-28 20:13:38,938 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,938 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer1.0.weight                                |torch.float32    |(32, 16, 1, 1)      |512        |
+2026-03-28 20:13:38,938 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,938 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer1.1.weight                                |torch.float32    |(32,)               |32         |
+2026-03-28 20:13:38,938 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,939 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer1.1.bias                                  |torch.float32    |(32,)               |32         |
+2026-03-28 20:13:38,939 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,939 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer2.0.weight                                |torch.float32    |(64, 64, 1, 1)      |4096       |
+2026-03-28 20:13:38,939 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,939 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer2.1.weight                                |torch.float32    |(64,)               |64         |
+2026-03-28 20:13:38,940 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,940 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer2.1.bias                                  |torch.float32    |(64,)               |64         |
+2026-03-28 20:13:38,940 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,940 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer3.0.weight                                |torch.float32    |(64, 128, 1, 1)     |8192       |
+2026-03-28 20:13:38,940 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,941 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer3.1.weight                                |torch.float32    |(64,)               |64         |
+2026-03-28 20:13:38,941 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,941 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer3.1.bias                                  |torch.float32    |(64,)               |64         |
+2026-03-28 20:13:38,942 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,942 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer4.0.weight                                |torch.float32    |(128, 128, 1, 1)    |16384      |
+2026-03-28 20:13:38,942 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,942 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer4.1.weight                                |torch.float32    |(128,)              |128        |
+2026-03-28 20:13:38,942 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,943 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.grouper.layer4.1.bias                                  |torch.float32    |(128,)              |128        |
+2026-03-28 20:13:38,943 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,943 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.pos_embed.0.weight                                     |torch.float32    |(128, 3)            |384        |
+2026-03-28 20:13:38,943 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,943 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.pos_embed.0.bias                                       |torch.float32    |(128,)              |128        |
+2026-03-28 20:13:38,943 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,944 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.pos_embed.2.weight                                     |torch.float32    |(384, 128)          |49152      |
+2026-03-28 20:13:38,944 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,944 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.pos_embed.2.bias                                       |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,944 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,944 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.input_proj.0.weight                                    |torch.float32    |(512, 128)          |65536      |
+2026-03-28 20:13:38,945 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,945 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.input_proj.0.bias                                      |torch.float32    |(512,)              |512        |
+2026-03-28 20:13:38,945 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,945 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.input_proj.2.weight                                    |torch.float32    |(384, 512)          |196608     |
+2026-03-28 20:13:38,945 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,946 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.input_proj.2.bias                                      |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,946 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,946 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.norm1.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,946 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,946 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.norm1.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,946 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,947 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.norm2.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,947 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,947 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.norm2.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,947 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,947 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.mlp.fc1.weight                 |torch.float32    |(768, 384)          |294912     |
+2026-03-28 20:13:38,948 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,948 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.mlp.fc1.bias                   |torch.float32    |(768,)              |768        |
+2026-03-28 20:13:38,948 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,948 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.mlp.fc2.weight                 |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,948 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,949 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.mlp.fc2.bias                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,949 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,949 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.attn.qkv.weight                |torch.float32    |(1152, 384)         |442368     |
+2026-03-28 20:13:38,949 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,949 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.attn.qkv.bias                  |torch.float32    |(1152,)             |1152       |
+2026-03-28 20:13:38,950 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,950 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.attn.proj.weight               |torch.float32    |(384, 384)          |147456     |
+2026-03-28 20:13:38,950 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,950 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.attn.proj.bias                 |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,950 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,951 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.local_attn.knn_map.0.weight    |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,951 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,951 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.local_attn.knn_map.0.bias      |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,951 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,951 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.merge_map.weight               |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,952 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,952 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.0.merge_map.bias                 |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,952 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,952 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.norm1.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,952 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,953 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.norm1.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,953 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,953 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.norm2.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,953 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,953 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.norm2.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,954 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,954 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.mlp.fc1.weight                 |torch.float32    |(768, 384)          |294912     |
+2026-03-28 20:13:38,954 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,954 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.mlp.fc1.bias                   |torch.float32    |(768,)              |768        |
+2026-03-28 20:13:38,955 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,955 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.mlp.fc2.weight                 |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,955 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,955 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.mlp.fc2.bias                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,956 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,956 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.attn.qkv.weight                |torch.float32    |(1152, 384)         |442368     |
+2026-03-28 20:13:38,956 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,956 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.attn.qkv.bias                  |torch.float32    |(1152,)             |1152       |
+2026-03-28 20:13:38,957 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,957 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.attn.proj.weight               |torch.float32    |(384, 384)          |147456     |
+2026-03-28 20:13:38,957 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,957 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.1.attn.proj.bias                 |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,957 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,958 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.norm1.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,958 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,958 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.norm1.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,958 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,958 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.norm2.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,959 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,959 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.norm2.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,959 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,959 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.mlp.fc1.weight                 |torch.float32    |(768, 384)          |294912     |
+2026-03-28 20:13:38,959 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,960 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.mlp.fc1.bias                   |torch.float32    |(768,)              |768        |
+2026-03-28 20:13:38,960 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,960 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.mlp.fc2.weight                 |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,960 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,960 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.mlp.fc2.bias                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,961 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,961 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.attn.qkv.weight                |torch.float32    |(1152, 384)         |442368     |
+2026-03-28 20:13:38,961 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,961 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.attn.qkv.bias                  |torch.float32    |(1152,)             |1152       |
+2026-03-28 20:13:38,961 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,962 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.attn.proj.weight               |torch.float32    |(384, 384)          |147456     |
+2026-03-28 20:13:38,962 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,962 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.2.attn.proj.bias                 |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,962 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,962 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.norm1.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,963 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,963 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.norm1.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,963 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,963 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.norm2.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,963 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,964 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.norm2.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,964 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,964 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.mlp.fc1.weight                 |torch.float32    |(768, 384)          |294912     |
+2026-03-28 20:13:38,964 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,964 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.mlp.fc1.bias                   |torch.float32    |(768,)              |768        |
+2026-03-28 20:13:38,965 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,965 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.mlp.fc2.weight                 |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,965 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,965 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.mlp.fc2.bias                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,965 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,966 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.attn.qkv.weight                |torch.float32    |(1152, 384)         |442368     |
+2026-03-28 20:13:38,966 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,966 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.attn.qkv.bias                  |torch.float32    |(1152,)             |1152       |
+2026-03-28 20:13:38,966 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,967 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.attn.proj.weight               |torch.float32    |(384, 384)          |147456     |
+2026-03-28 20:13:38,967 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,967 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.3.attn.proj.bias                 |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,967 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,967 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.norm1.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,968 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,968 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.norm1.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,968 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,968 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.norm2.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,968 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,969 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.norm2.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,969 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,969 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.mlp.fc1.weight                 |torch.float32    |(768, 384)          |294912     |
+2026-03-28 20:13:38,969 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,969 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.mlp.fc1.bias                   |torch.float32    |(768,)              |768        |
+2026-03-28 20:13:38,970 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,970 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.mlp.fc2.weight                 |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,970 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,970 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.mlp.fc2.bias                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,971 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,971 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.attn.qkv.weight                |torch.float32    |(1152, 384)         |442368     |
+2026-03-28 20:13:38,971 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,971 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.attn.qkv.bias                  |torch.float32    |(1152,)             |1152       |
+2026-03-28 20:13:38,971 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,972 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.attn.proj.weight               |torch.float32    |(384, 384)          |147456     |
+2026-03-28 20:13:38,972 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,972 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.4.attn.proj.bias                 |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,972 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,972 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.norm1.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,973 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,973 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.norm1.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,973 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,973 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.norm2.weight                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,973 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,974 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.norm2.bias                     |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,974 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,974 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.mlp.fc1.weight                 |torch.float32    |(768, 384)          |294912     |
+2026-03-28 20:13:38,974 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,974 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.mlp.fc1.bias                   |torch.float32    |(768,)              |768        |
+2026-03-28 20:13:38,974 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,975 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.mlp.fc2.weight                 |torch.float32    |(384, 768)          |294912     |
+2026-03-28 20:13:38,975 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,975 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.mlp.fc2.bias                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,975 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,975 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.attn.qkv.weight                |torch.float32    |(1152, 384)         |442368     |
+2026-03-28 20:13:38,976 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,976 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.attn.qkv.bias                  |torch.float32    |(1152,)             |1152       |
+2026-03-28 20:13:38,976 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,976 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.attn.proj.weight               |torch.float32    |(384, 384)          |147456     |
+2026-03-28 20:13:38,976 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,977 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.blocks.blocks.5.attn.proj.bias                 |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,977 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,977 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.norm.weight                                    |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,977 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,977 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.encoder.norm.bias                                      |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,978 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,978 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.increase_dim.0.weight                                  |torch.float32    |(1024, 384)         |393216     |
+2026-03-28 20:13:38,978 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,978 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.increase_dim.0.bias                                    |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,978 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,978 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.increase_dim.2.weight                                  |torch.float32    |(1024, 1024)        |1048576    |
+2026-03-28 20:13:38,979 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,979 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.increase_dim.2.bias                                    |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,979 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,979 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.coarse_pred.0.weight                                   |torch.float32    |(1024, 1024)        |1048576    |
+2026-03-28 20:13:38,979 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,980 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.coarse_pred.0.bias                                     |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,980 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,980 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.coarse_pred.2.weight                                   |torch.float32    |(1536, 1024)        |1572864    |
+2026-03-28 20:13:38,980 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,980 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.coarse_pred.2.bias                                     |torch.float32    |(1536,)             |1536       |
+2026-03-28 20:13:38,981 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,981 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.mlp_query.0.weight                                     |torch.float32    |(1024, 1027)        |1051648    |
+2026-03-28 20:13:38,981 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,981 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.mlp_query.0.bias                                       |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,981 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,982 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.mlp_query.2.weight                                     |torch.float32    |(1024, 1024)        |1048576    |
+2026-03-28 20:13:38,982 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,982 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.mlp_query.2.bias                                       |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,982 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,982 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.mlp_query.4.weight                                     |torch.float32    |(384, 1024)         |393216     |
+2026-03-28 20:13:38,983 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,983 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.mlp_query.4.bias                                       |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,983 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,983 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.query_ranking.0.weight                                 |torch.float32    |(256, 3)            |768        |
+2026-03-28 20:13:38,983 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,984 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.query_ranking.0.bias                                   |torch.float32    |(256,)              |256        |
+2026-03-28 20:13:38,984 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,984 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.query_ranking.2.weight                                 |torch.float32    |(256, 256)          |65536      |
+2026-03-28 20:13:38,984 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,984 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.query_ranking.2.bias                                   |torch.float32    |(256,)              |256        |
+2026-03-28 20:13:38,985 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,985 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.query_ranking.4.weight                                 |torch.float32    |(1, 256)            |256        |
+2026-03-28 20:13:38,985 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,985 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.base_model.query_ranking.4.bias                                   |torch.float32    |(1,)                |1          |
+2026-03-28 20:13:38,985 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,986 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.decode_head.layer.fc1.weight                                      |torch.float32    |(512, 768)          |393216     |
+2026-03-28 20:13:38,986 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,986 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.decode_head.layer.fc1.bias                                        |torch.float32    |(512,)              |512        |
+2026-03-28 20:13:38,986 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,986 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.decode_head.layer.fc2.weight                                      |torch.float32    |(96, 512)           |49152      |
+2026-03-28 20:13:38,986 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,987 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.decode_head.layer.fc2.bias                                        |torch.float32    |(96,)               |96         |
+2026-03-28 20:13:38,987 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,987 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.increase_dim.0.weight                                             |torch.float32    |(1024, 384, 1)      |393216     |
+2026-03-28 20:13:38,987 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,988 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.increase_dim.0.bias                                               |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,988 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,988 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.increase_dim.1.weight                                             |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,988 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,988 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.increase_dim.1.bias                                               |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,989 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,989 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.increase_dim.3.weight                                             |torch.float32    |(1024, 1024, 1)     |1048576    |
+2026-03-28 20:13:38,989 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,989 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.increase_dim.3.bias                                               |torch.float32    |(1024,)             |1024       |
+2026-03-28 20:13:38,989 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,989 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.reduce_map.weight                                                 |torch.float32    |(384, 1411)         |541824     |
+2026-03-28 20:13:38,990 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,990 - AdaPoinTr_pgst_baseline_gpu0 - INFO - |module.reduce_map.bias                                                   |torch.float32    |(384,)              |384        |
+2026-03-28 20:13:38,990 - AdaPoinTr_pgst_baseline_gpu0 - INFO - ------------------------------------------------------------------------------------------------------------------------------
+2026-03-28 20:13:38,994 - AdaPoinTr_pgst_baseline_gpu0 - INFO - >> # TrainableParams:       	32.49	M  32494.66	K
+2026-03-28 20:13:38,995 - AdaPoinTr_pgst_baseline_gpu0 - INFO - >> # NonTrainableParams:    	0.00	M
+2026-03-28 20:13:38,995 - AdaPoinTr_pgst_baseline_gpu0 - INFO - >> # TotalParams:           	32.49	M
+2026-03-28 20:13:38,995 - AdaPoinTr_pgst_baseline_gpu0 - INFO - >> # TuningRatio:           	100.00	%
+2026-03-28 20:13:38,995 - AdaPoinTr_pgst_baseline_gpu0 - INFO - 
+
+increase_dim.3.weight
+increase_dim.3.bias
+reduce_map.weight
+reduce_map.bias
+2026-03-28 20:13:41,881 - AdaPoinTr_pgst_baseline_gpu0 - INFO - [Epoch 0/200][Batch 1/603] BatchTime = 2.883 (s) DataTime = 0.378 (s) Losses = ['28.2474', '65.8276'] lr = 0.000300
+2026-03-28 20:14:48,423 - AdaPoinTr_pgst_baseline_gpu0 - INFO - [Epoch 0/200][Batch 101/603] BatchTime = 0.707 (s) DataTime = 0.000 (s) Losses = ['3.3190', '28.8008'] lr = 0.000300
+2026-03-28 20:15:55,412 - AdaPoinTr_pgst_baseline_gpu0 - INFO - [Epoch 0/200][Batch 201/603] BatchTime = 0.647 (s) DataTime = 0.000 (s) Losses = ['3.2905', '30.4442'] lr = 0.000300
+2026-03-28 20:17:02,741 - AdaPoinTr_pgst_baseline_gpu0 - INFO - [Epoch 0/200][Batch 301/603] BatchTime = 0.690 (s) DataTime = 0.000 (s) Losses = ['3.0095', '27.4977'] lr = 0.000300

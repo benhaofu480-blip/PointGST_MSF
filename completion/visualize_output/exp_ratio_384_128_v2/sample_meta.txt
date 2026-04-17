@@ -1,0 +1,7 @@
+seed=20260404
+chosen_categories=['car', 'lamp', 'airplane', 'chair']
+checkpoint=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/experiments/pertoken_core_gpu1_ratio384/PCN_models/exp_ratio_384_128_v2/ckpt-best.pth
+chair	0	49918114029ce6a63db5e7f805103dd	CD_L1_mm=8.5759	./visualize_output/exp_ratio_384_128_v2/chair_0_49918114029c
+car	0	e011a97bdaf8aac4bbb53e58fdcb6353	CD_L1_mm=9.6186	./visualize_output/exp_ratio_384_128_v2/car_0_e011a97bdaf8
+airplane	0	2d7aff5577ae7af0d8ff6111270336a9	CD_L1_mm=3.3072	./visualize_output/exp_ratio_384_128_v2/airplane_0_2d7aff5577ae
+lamp	0	ec0979097f7c811922a520e8315099fb	CD_L1_mm=2.5715	./visualize_output/exp_ratio_384_128_v2/lamp_0_ec0979097f7c

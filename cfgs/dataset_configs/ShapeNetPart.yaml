@@ -1,0 +1,5 @@
+NAME: ShapeNetPart
+DATA_PATH: data/ShapeNetPart
+N_POINTS: 2048
+NUM_CATEGORY: 16
+NUM_PARTS: 50

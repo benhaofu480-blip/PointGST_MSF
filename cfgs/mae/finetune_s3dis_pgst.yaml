@@ -1,0 +1,42 @@
+optimizer:
+  type: AdamW
+  part: adapt
+  kwargs:
+    lr: 0.0005
+    weight_decay: 0.05
+
+scheduler:
+  type: CosLR
+  kwargs:
+    epochs: 100
+    initial_epochs: 5
+
+dataset:
+  train:
+    _base_: cfgs/dataset_configs/S3DIS.yaml
+    others: { subset: "train" }
+  val:
+    _base_: cfgs/dataset_configs/S3DIS.yaml
+    others: { subset: "test" }
+
+model:
+  NAME: PointTransformerSemSeg_PGST
+  trans_dim: 384
+  depth: 12
+  drop_path_rate: 0.1
+  cls_dim: 13
+  num_heads: 6
+  group_size: 32
+  num_group: 128
+  encoder_dims: 256
+  rank: 36
+  local: 16
+  use_ecfr: false   # ECFR开关
+  use_dasa: false   # DASA开关: true启用密度感知频域适配
+  NUM_CLASSES: 13
+
+npoints: 4096
+total_bs: 6      # 从8降到6，确保单卡3090(24GB)稳定运行
+max_epoch: 100
+step_per_update: 1
+grad_norm_clip: 10
