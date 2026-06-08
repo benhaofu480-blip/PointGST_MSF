@@ -1,8 +1,0 @@
-seed=20260411
-fixed_categories=['airplane', 'chair', 'table', 'lamp', 'cabinet']
-checkpoint=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/experiments/AdaPoinTr_core_new/PCN_models/exp2_adaptive_pooling/ckpt-best.pth
-chair	0	49918114029ce6a63db5e7f805103dd	CD_L1_mm=4.7246	./visualize_output/exp2_adaptive_pooling_vis/chair_0_49918114029c
-table	0	151c68b48a1359c58566c6c3bc94c70c	CD_L1_mm=4.4536	./visualize_output/exp2_adaptive_pooling_vis/table_0_151c68b48a13
-airplane	0	2d7aff5577ae7af0d8ff6111270336a9	CD_L1_mm=3.2135	./visualize_output/exp2_adaptive_pooling_vis/airplane_0_2d7aff5577ae
-cabinet	0	26eb1d73803b2426ef46cffe4939fce1	CD_L1_mm=10.2028	./visualize_output/exp2_adaptive_pooling_vis/cabinet_0_26eb1d73803b
-lamp	0	ec0979097f7c811922a520e8315099fb	CD_L1_mm=2.5137	./visualize_output/exp2_adaptive_pooling_vis/lamp_0_ec0979097f7c

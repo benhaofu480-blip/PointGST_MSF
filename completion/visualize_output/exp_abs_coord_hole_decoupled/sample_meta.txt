@@ -1,7 +1,0 @@
-seed=20260411
-chosen_categories=['watercraft', 'table', 'chair', 'airplane']
-checkpoint=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/experiments/pertoken_core_gpu1_ratio384/PCN_models/exp_abs_coord_hole_decoupled/ckpt-best.pth
-chair	0	49918114029ce6a63db5e7f805103dd	CD_L1_mm=31.3359	./visualize_output/exp_abs_coord_hole_decoupled/chair_0_49918114029c
-watercraft	0	2b58ca08b8f93769c5408f4f799fe72	CD_L1_mm=14.2681	./visualize_output/exp_abs_coord_hole_decoupled/watercraft_0_2b58ca08b8f9
-table	0	151c68b48a1359c58566c6c3bc94c70c	CD_L1_mm=55.3949	./visualize_output/exp_abs_coord_hole_decoupled/table_0_151c68b48a13
-airplane	0	2d7aff5577ae7af0d8ff6111270336a9	CD_L1_mm=29.4959	./visualize_output/exp_abs_coord_hole_decoupled/airplane_0_2d7aff5577ae

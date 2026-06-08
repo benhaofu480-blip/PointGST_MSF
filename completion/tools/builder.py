@@ -10,6 +10,7 @@ from models import build_model_from_cfg
 # utils
 from utils.logger import *
 from utils.misc import *
+from tools.freeze_policy import param_trainable_for_part
 
 def dataset_builder(args, config):
     dataset = build_dataset_from_cfg(config._base_, config.others)
@@ -86,7 +87,18 @@ def build_optimizer(base_model, config):
                 elif config.optimizer.part == 'gft':
                     if ('adapt' in name) or ('Adapter' in name) or ('cls' in name) or ('head' in name) or (
                             'FacT' in name) or ('tfts' in name) or ('decoder' in name) or ('gft_adapter' in name) or \
-                            ('coarse_pred' in name) or ('mlp_query' in name) or ('query_ranking' in name) or ('global_coarse_pred' in name) or ('global_token_pe' in name):
+                            ('coarse_pred' in name) or ('mlp_query' in name) or ('query_ranking' in name) or ('global_coarse_pred' in name) or ('global_token_pe' in name) or \
+                            ('route_proj' in name) or ('route_scale' in name) or ('rebuild_route_proj' in name):
+                        if (len(param.shape)) == 1 or name.endswith(".bias") or 'token' in name or name in skip_list:
+                            no_decay.append(param)
+                        else:
+                            decay.append(param)
+                        print(name)
+                    else:
+                        param.requires_grad = False
+                elif config.optimizer.part in ('gft_single_decoder', 'gft_msf_head_only'):
+                    trainable = param_trainable_for_part(name, config.optimizer.part, config.optimizer)
+                    if trainable:
                         if (len(param.shape)) == 1 or name.endswith(".bias") or 'token' in name or name in skip_list:
                             no_decay.append(param)
                         else:

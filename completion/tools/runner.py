@@ -9,6 +9,18 @@ from utils.logger import *
 from utils.AverageMeter import AverageMeter
 from utils.metrics import Metrics
 from extensions.chamfer_dist import ChamferDistanceL1, ChamferDistanceL2
+from utils.open3d_postprocess import is_postprocess_enabled, postprocess_dense_points
+from utils.batch_ohem import apply_batch_ohem, ohem_enabled
+from utils.feedback_train import feedback_enabled, feedback_training_loss
+from models.PGST import (
+    MSF_scalar_nodiff,
+    MSF_scalar_group_refined_v2_final,
+    MSF_scalar_group_refined_v2_tanh,
+    MSF_pure_Group,
+    MSF_pure_Group_tanh,
+    MSF_pure_Group_sigmoid,
+    MSF_pure_Group_sigmoid_point,
+)
 
 
 def summary_parameters(model, logger=None):
@@ -105,10 +117,44 @@ def run_net(args, config, train_writer=None, val_writer=None):
 
     base_model.zero_grad()
     summary_parameters(base_model, logger=logger)
+    use_ohem = ohem_enabled(config)
+    use_feedback = feedback_enabled(config)
+    if use_ohem and use_feedback:
+        raise ValueError('feedback_training and ohem cannot both be enabled')
+    if use_feedback:
+        fb_cfg = config.feedback_training
+        crop_mode = getattr(fb_cfg, 'crop_mode', 'random')
+        print_log(
+            '[FeedPoinTrS] Two-pass feedback training enabled '
+            f'(crop_mode={crop_mode}, '
+            f'crop_ratio=[{getattr(fb_cfg, "crop_ratio_min", 0.25)}, '
+            f'{getattr(fb_cfg, "crop_ratio_max", 0.75)}], '
+            f'pass_weights={getattr(fb_cfg, "pass_weight_first", 2.0)}:'
+            f'{getattr(fb_cfg, "pass_weight_second", 1.0)})',
+            logger=logger,
+        )
+    elif use_ohem:
+        ohem_cfg = config.ohem
+        print_log(
+            '[OHEM] Batch-level online hard mining enabled '
+            f'(mode={getattr(ohem_cfg, "mode", "hard")}, '
+            f'keep_ratio={getattr(ohem_cfg, "keep_ratio", 0.7)}); '
+            'train list unchanged.',
+            logger=logger,
+        )
     for epoch in range(start_epoch, config.max_epoch + 1):
         if args.distributed:
             train_sampler.set_epoch(epoch)
         base_model.train()
+
+        if config.scheduler.type == 'CosLR':
+            cos_sched = scheduler[0] if isinstance(scheduler, list) else scheduler
+            cos_sched.step(epoch)
+            print_log(
+                '[Epoch %d/%d] start lr = %.6f' %
+                (epoch, config.max_epoch, optimizer.param_groups[0]['lr']),
+                logger=logger,
+            )
 
         epoch_start_time = time.time()
         batch_start_time = time.time()
@@ -141,12 +187,22 @@ def run_net(args, config, train_writer=None, val_writer=None):
 
             num_iter += 1
            
-            ret = base_model(partial)
-            
-            sparse_loss, dense_loss = base_model.module.get_loss(ret, gt, epoch)
-            
-            _loss = sparse_loss + dense_loss
-            _loss.backward()
+            if use_feedback:
+                sparse_loss, dense_loss, _loss = feedback_training_loss(
+                    base_model, partial, gt, epoch, config,
+                )
+            elif use_ohem:
+                ret = base_model(partial)
+                per_total, per_sparse, per_dense = base_model.module.get_loss_per_sample(ret, gt, epoch)
+                _loss = apply_batch_ohem(per_total, config)
+                sparse_loss = per_sparse.mean()
+                dense_loss = per_dense.mean()
+            else:
+                ret = base_model(partial)
+                sparse_loss, dense_loss = base_model.module.get_loss(ret, gt, epoch)
+                _loss = sparse_loss + dense_loss
+            if not use_feedback:
+                _loss.backward()
 
             # forward
             if num_iter == config.step_per_update:
@@ -185,8 +241,9 @@ def run_net(args, config, train_writer=None, val_writer=None):
 
         if isinstance(scheduler, list):
             for item in scheduler:
-                item.step()
-        else:
+                if config.scheduler.type != 'CosLR':
+                    item.step()
+        elif config.scheduler.type != 'CosLR':
             scheduler.step()
         epoch_end_time = time.time()
 
@@ -196,24 +253,43 @@ def run_net(args, config, train_writer=None, val_writer=None):
         print_log('[Training] EPOCH: %d EpochTime = %.3f (s) Losses = %s' %
             (epoch,  epoch_end_time - epoch_start_time, ['%.4f' % l for l in losses.avg()]), logger = logger)
 
-        if epoch % args.val_freq == 0:
-            # Validate the current model
+        should_stop = False
+        val_freq = int(getattr(config, 'val_freq', 10) or 10)
+        early_stop_enabled = bool(getattr(config, 'early_stop', True))
+        early_stop_patience = int(getattr(config, 'early_stop_patience', 30))
+        dh_cfg = getattr(config, 'dynamic_hard_mining', None)
+        dh_enabled = dh_cfg is not None and bool(getattr(dh_cfg, 'enabled', False))
+        dh_start = int(getattr(dh_cfg, 'remine_start_epoch', 10)) if dh_enabled else 10**9
+
+        if epoch % val_freq == 0:
             metrics = validate(base_model, test_dataloader, epoch, ChamferDisL1, ChamferDisL2, val_writer, args, config, logger=logger)
 
-            # Save ckeckpoints
-            if  metrics.better_than(best_metrics):
+            if metrics.better_than(best_metrics):
                 best_metrics = metrics
-                no_improve_epochs = 0  # reset early stop counter
-                builder.save_checkpoint(base_model, optimizer, epoch, metrics, best_metrics, 'ckpt-best', args, logger = logger)
+                no_improve_epochs = 0
+                builder.save_checkpoint(base_model, optimizer, epoch, metrics, best_metrics, 'ckpt-best', args, logger=logger)
             else:
-                no_improve_epochs += args.val_freq
-                # Early stopping: if no improvement for 30 epochs, stop
-                if no_improve_epochs >= 30:
-                    print_log(f"[Early Stop] No improvement for {no_improve_epochs} epochs, stopping at epoch {epoch}", logger=logger)
-                    break
-        builder.save_checkpoint(base_model, optimizer, epoch, metrics, best_metrics, 'ckpt-last', args, logger = logger)      
+                no_improve_epochs += val_freq
+                if early_stop_enabled and no_improve_epochs >= early_stop_patience:
+                    print_log(
+                        f"[Early Stop] No improvement for {no_improve_epochs} epochs, stopping at epoch {epoch}",
+                        logger=logger,
+                    )
+                    should_stop = True
+            builder.save_checkpoint(base_model, optimizer, epoch, metrics, best_metrics, 'ckpt-last', args, logger=logger)
+
+            if dh_enabled and epoch >= dh_start and epoch % val_freq == 0:
+                from utils.dynamic_hard_mining import remine_and_rebuild_train_mix, reload_train_dataloader
+                mix_path = remine_and_rebuild_train_mix(base_model, args, config, epoch, logger=logger)
+                config.dataset.train.others.sample_list_file = mix_path
+                train_sampler, train_dataloader = reload_train_dataloader(
+                    args, config, old_loader=train_dataloader, logger=logger,
+                )
+
         if (config.max_epoch - epoch) < 2:
-            builder.save_checkpoint(base_model, optimizer, epoch, metrics, best_metrics, f'ckpt-epoch-{epoch:03d}', args, logger = logger)     
+            builder.save_checkpoint(base_model, optimizer, epoch, metrics, best_metrics, f'ckpt-epoch-{epoch:03d}', args, logger=logger)
+        if epoch % val_freq == 0 and should_stop:
+            break
     if train_writer is not None and val_writer is not None:
         train_writer.close()
         val_writer.close()
@@ -345,6 +421,15 @@ def validate(base_model, test_dataloader, epoch, ChamferDisL1, ChamferDisL2, val
         for i, metric in enumerate(test_metrics.items):
             val_writer.add_scalar('Metric/%s' % metric, test_metrics.avg(i), epoch)
 
+    # 打印门控统计（仅在该模块实际被使用时有输出）
+    MSF_scalar_nodiff.flush_gate_stats(logger=logger)
+    MSF_scalar_group_refined_v2_final.flush_gate_stats(logger=logger)
+    MSF_scalar_group_refined_v2_tanh.flush_gate_stats(logger=logger)
+    MSF_pure_Group.flush_gate_stats(logger=logger)
+    MSF_pure_Group_tanh.flush_gate_stats(logger=logger)
+    MSF_pure_Group_sigmoid.flush_gate_stats(logger=logger)
+    MSF_pure_Group_sigmoid_point.flush_gate_stats(logger=logger)
+
     return Metrics(config.consider_metric, test_metrics.avg())
 
 
@@ -378,6 +463,14 @@ def test_net(args, config):
 def test(base_model, test_dataloader, ChamferDisL1, ChamferDisL2, args, config, logger = None):
 
     base_model.eval()  # set model to eval mode
+    if is_postprocess_enabled(config):
+        cfg_pp = getattr(config, 'test_postprocess', {})
+        print_log(
+            f'[TEST] Open3D postprocess ON: method={getattr(cfg_pp, "method", "statistical_outlier")} '
+            f'nb_neighbors={getattr(cfg_pp, "nb_neighbors", 20)} '
+            f'std_ratio={getattr(cfg_pp, "std_ratio", 2.0)}',
+            logger=logger,
+        )
 
     test_losses = AverageMeter(['SparseLossL1', 'SparseLossL2', 'DenseLossL1', 'DenseLossL2'])
     test_metrics = AverageMeter(Metrics.names())
@@ -398,6 +491,7 @@ def test(base_model, test_dataloader, ChamferDisL1, ChamferDisL2, args, config, 
                 ret = base_model(partial)
                 coarse_points = ret[0]
                 dense_points = ret[-1]
+                dense_points = postprocess_dense_points(dense_points, config, logger=logger)
 
                 sparse_loss_l1 =  ChamferDisL1(coarse_points, gt)
                 sparse_loss_l2 =  ChamferDisL2(coarse_points, gt)

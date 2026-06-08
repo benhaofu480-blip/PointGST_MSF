@@ -13,6 +13,64 @@ from models.Transformer_utils import *
 from utils import misc
 from .z_order import xyz2key
 
+class PCSA(nn.Module):
+    """原版 PCSA（与 Paper_related/PGST.py 同构，forward 含 down/up 谱适配）。"""
+    def __init__(self, dim, adapt_dim):
+        super().__init__()
+        self.adapt_dim = adapt_dim
+        self.norm_ly1 = nn.LayerNorm(adapt_dim)
+        self.norm_ly2 = nn.LayerNorm(adapt_dim)
+        self.act = nn.SiLU()
+        self.down = nn.Linear(dim, adapt_dim)
+        self.up = nn.Linear(adapt_dim, dim)
+        self.adapt = nn.Linear(adapt_dim, adapt_dim)
+        nn.init.zeros_(self.adapt.weight)
+        nn.init.zeros_(self.adapt.bias)
+        self.drop_fourier = DropPath(0.)
+        self.drop_adapt1 = DropPath(0.)
+        self.drop_adapt2 = DropPath(0.)
+        self.drop_out = nn.Dropout(0.)
+        nn.init.xavier_uniform_(self.down.weight)
+        nn.init.zeros_(self.up.weight)
+        nn.init.zeros_(self.up.bias)
+
+    def forward(self, input, sub_U, idx):
+        h = self.down(input)
+        h = self.act(h)
+        x = h
+
+        B0, group_num, group_size, _ = sub_U[0].shape
+        G0 = group_num * group_size
+        sub_x0 = sort(x, idx[0])
+        sub_x0 = sub_x0.reshape(B0, group_num, group_size, self.adapt_dim)
+
+        B1, group_num, group_size, _ = sub_U[1].shape
+        sub_x1 = sub_x0.reshape(B1, group_num, group_size, self.adapt_dim)
+
+        sub_x_f0 = sub_U[0].transpose(-2, -1) @ sub_x0
+        sub_h_f0 = sub_x_f0
+        sub_x_f0 = self.norm_ly2(sub_x_f0)
+        sub_x_f0 = sub_h_f0 + self.drop_adapt1(self.act(self.drop_out(self.adapt(sub_x_f0))))
+        sub_x0 = sub_U[0] @ sub_x_f0
+
+        sub_x0 = sub_x0.reshape(B0, G0, self.adapt_dim)
+        sub_x0 = sort(sub_x0, idx[1])
+
+        sub_x_f1 = sub_U[1].transpose(-2, -1) @ sub_x1
+        sub_h_f1 = sub_x_f1
+        sub_x_f1 = self.norm_ly2(sub_x_f1)
+        sub_x_f1 = sub_h_f1 + self.drop_adapt2(self.act(self.drop_out(self.adapt(sub_x_f1))))
+        sub_x1 = sub_U[1] @ sub_x_f1
+
+        sub_x1 = sub_x1.reshape(B0, G0, self.adapt_dim)
+        sub_x0 = sort(sub_x1, idx[1])
+
+        x = sub_x0 + sub_x1
+        h = x + h
+        h = self.up(h)
+        return h
+
+
 class MSF(nn.Module):
     """
     Multi-scale Fusion (MSF) Module
@@ -104,6 +162,1194 @@ class MSF(nn.Module):
         h = self.up(h)
         return h
 
+class MSF_scalar_group_refined_v2_final(nn.Module):
+    """
+    Group-dominant scalar gating + point residual correction with bounded soft routing.
+    - Group-level logits provide stable coarse routing
+    - Point-level residual logits provide lightweight local adjustment
+    - Softmax ensures normalized gate competition (sum-to-one, non-negative)
+    - Scale factor restores add-style magnitude (initially around 1.0+x0 + 1.0+x1 semantics)
+    - Monitor uses class-level buffers, compatible with classmethod flush_gate_stats()
+    """
+    _g0_vals = []
+    _g1_vals = []
+    _tau_vals = []
+
+    @classmethod
+    def flush_gate_stats(cls, logger=None):
+        if not cls._g0_vals:
+            return
+        g0 = torch.cat(cls._g0_vals).float()
+        g1 = torch.cat(cls._g1_vals).float()
+        tau = torch.cat(cls._tau_vals).float()
+        msg = (
+            "[Gate Monitor] g0 mean/min/max/std = "
+            f"{g0.mean():.4f} {g0.min():.4f} {g0.max():.4f} {g0.std():.4f} | "
+            f"g1 mean/min/max/std = "
+            f"{g1.mean():.4f} {g1.min():.4f} {g1.max():.4f} {g1.std():.4f} | "
+            f"tau mean/min/max/std = "
+            f"{tau.mean():.4f} {tau.min():.4f} {tau.max():.4f} {tau.std():.4f}"
+        )
+        print_log(msg, logger=logger)
+        cls._g0_vals.clear()
+        cls._g1_vals.clear()
+        cls._tau_vals.clear()
+
+    def __init__(self, dim, adapt_dim):
+        super().__init__()
+        self.adapt_dim = adapt_dim
+        self.eps = 1e-6
+
+        self.norm_ly2 = nn.LayerNorm(adapt_dim)
+        self.act = nn.SiLU()
+        self.down = nn.Linear(dim, adapt_dim)
+        self.up = nn.Linear(adapt_dim, dim)
+
+        # Decoupled spectral filters
+        self.adapt16 = nn.Linear(adapt_dim, adapt_dim)
+        self.adapt32 = nn.Linear(adapt_dim, adapt_dim)
+        nn.init.zeros_(self.adapt16.weight)
+        nn.init.zeros_(self.adapt16.bias)
+        nn.init.zeros_(self.adapt32.weight)
+        nn.init.zeros_(self.adapt32.bias)
+
+        # Group energy encoder
+        self.energy_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+        self.energy_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+
+        # Group-level routing logits (per group)
+        self.group_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+        self.group_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+
+        # Point-level residual routing logits (lightweight)
+        self.refine_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+        self.refine_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+
+        # Initialize to near identity/add-style behavior
+        nn.init.zeros_(self.group_mlp0[-1].weight)
+        nn.init.zeros_(self.group_mlp0[-1].bias)
+        nn.init.zeros_(self.group_mlp1[-1].weight)
+        nn.init.zeros_(self.group_mlp1[-1].bias)
+        nn.init.zeros_(self.refine_mlp0[-1].weight)
+        nn.init.zeros_(self.refine_mlp0[-1].bias)
+        nn.init.zeros_(self.refine_mlp1[-1].weight)
+        nn.init.zeros_(self.refine_mlp1[-1].bias)
+
+        self.drop_adapt1 = DropPath(0.)
+        self.drop_adapt2 = DropPath(0.)
+        self.drop_out = nn.Dropout(0.)
+
+        nn.init.xavier_uniform_(self.down.weight)
+        nn.init.zeros_(self.up.weight)
+        nn.init.zeros_(self.up.bias)
+
+        # Routing control
+        self.log_tau = nn.Parameter(torch.tensor(-1.0))  # tau = 0.4 + 1.6 * sigmoid(log_tau) in [0.4, 2.0]
+        self.logit_clip = 2.0
+        self.point_delta_scale = 0.10
+        self.fuse_scale = 2.0  # compensate softmax 0.5+0.5 init to keep magnitude consistent with prior add-style fusion
+
+    def _assert_shapes(self, B0, B1, G0, G1):
+        assert B0 == B1, f'Batch mismatch: B0={B0}, B1={B1}'
+        assert G0 == G1, f'Point count mismatch: G0={G0}, G1={G1}'
+
+    def forward(self, input, sub_U, idx):
+        h = self.down(input)
+        h = self.act(h)
+        x = h
+
+        # 1) multi-scale reshape
+        B0, group_num0, group_size0, _ = sub_U[0].shape
+        G0 = group_num0 * group_size0
+        B1, group_num1, group_size1, _ = sub_U[1].shape
+        G1 = group_num1 * group_size1
+        self._assert_shapes(B0, B1, G0, G1)
+
+        x_sorted = sort(x, idx[0])
+        sub_x0 = x_sorted.reshape(B0, group_num0, group_size0, self.adapt_dim)
+        sub_x1 = x_sorted.reshape(B1, group_num1, group_size1, self.adapt_dim)
+
+        # 2) spectral branch 16
+        sub_x_f0 = sub_U[0].transpose(-2, -1) @ sub_x0
+        sub_h_f0 = sub_x_f0
+        sub_x_f0 = self.norm_ly2(sub_x_f0)
+        sub_x_f0 = sub_h_f0 + self.drop_adapt1(self.act(self.drop_out(self.adapt16(sub_x_f0))))
+        sub_x0 = sub_U[0] @ sub_x_f0
+        sub_x0 = sub_x0.reshape(B0, G0, self.adapt_dim)
+        sub_x0_restored = sort(sub_x0, idx[1])
+
+        # 3) spectral branch 32
+        sub_x_f1 = sub_U[1].transpose(-2, -1) @ sub_x1
+        sub_h_f1 = sub_x_f1
+        sub_x_f1 = self.norm_ly2(sub_x_f1)
+        sub_x_f1 = sub_h_f1 + self.drop_adapt2(self.act(self.drop_out(self.adapt32(sub_x_f1))))
+        sub_x1 = sub_U[1] @ sub_x_f1
+        sub_x1 = sub_x1.reshape(B1, G1, self.adapt_dim)
+        sub_x1_restored = sort(sub_x1, idx[1])
+
+        # 4) group energy context
+        energy_0 = torch.sqrt((sub_x_f0 ** 2).mean(dim=2) + 1e-6)
+        energy_1 = torch.sqrt((sub_x_f1 ** 2).mean(dim=2) + 1e-6)
+        ctx_0 = self.energy_mlp0(energy_0)  # (B, group_num0, adapt_dim)
+        ctx_1 = self.energy_mlp1(energy_1)  # (B, group_num1, adapt_dim)
+
+        # broadcast context to point-level and restore order
+        ctx_0_spatial = sort(
+            ctx_0.unsqueeze(2).expand(B0, group_num0, group_size0, self.adapt_dim).reshape(B0, G0, self.adapt_dim),
+            idx[1]
+        )
+        ctx_1_spatial = sort(
+            ctx_1.unsqueeze(2).expand(B1, group_num1, group_size1, self.adapt_dim).reshape(B1, G1, self.adapt_dim),
+            idx[1]
+        )
+
+        # 5) group logits -> point-level by broadcast
+        group_logit0 = self.group_mlp0(ctx_0)  # (B, group_num0, 1)
+        group_logit1 = self.group_mlp1(ctx_1)  # (B, group_num1, 1)
+        group_logit0 = sort(
+            group_logit0.unsqueeze(2).expand(B0, group_num0, group_size0, 1).reshape(B0, G0, 1),
+            idx[1]
+        )
+        group_logit1 = sort(
+            group_logit1.unsqueeze(2).expand(B1, group_num1, group_size1, 1).reshape(B1, G1, 1),
+            idx[1]
+        )
+
+        # 6) point residual logits with context
+        delta_input0 = torch.cat([sub_x0_restored, ctx_0_spatial], dim=-1)
+        delta_input1 = torch.cat([sub_x1_restored, ctx_1_spatial], dim=-1)
+        delta_logit0 = torch.tanh(self.refine_mlp0(delta_input0)) * self.point_delta_scale
+        delta_logit1 = torch.tanh(self.refine_mlp1(delta_input1)) * self.point_delta_scale
+
+        # 7) bounded + soften routing
+        logit0 = torch.clamp(group_logit0 + delta_logit0, -self.logit_clip, self.logit_clip)
+        logit1 = torch.clamp(group_logit1 + delta_logit1, -self.logit_clip, self.logit_clip)
+
+        tau = 0.4 + 1.6 * torch.sigmoid(self.log_tau)  # [0.4, 2.0]
+        logits = torch.cat([logit0, logit1], dim=-1) / tau
+        gate = torch.softmax(logits, dim=-1)
+        gate0 = gate[..., 0:1]
+        gate1 = gate[..., 1:2]
+
+        # monitor
+        if not self.training:
+            cls = self.__class__
+            cls._g0_vals.append(gate0.detach().cpu().float().reshape(-1))
+            cls._g1_vals.append(gate1.detach().cpu().float().reshape(-1))
+            cls._tau_vals.append(tau.detach().cpu().float().reshape(-1))
+
+        # 8) fuse (scale restored to add-style magnitude)
+        x = (gate0 * sub_x0_restored + gate1 * sub_x1_restored) * self.fuse_scale
+
+        # 9) residual output
+        h = x + h
+        h = self.up(h)
+        return h
+
+
+class MSF_scalar_group_refined_v2_tanh(nn.Module):
+    """
+    Group-dominant scalar gating + point residual correction with bounded tanh routing.
+    - Group-level logits provide stable coarse routing
+    - Point-level residual logits provide lightweight local adjustment
+    - gate = 1 + alpha * tanh(logit), no softmax/temperature needed
+    - Logit clipping and gate-stat monitoring for stability
+    - Same fusion form: x = (gate0 * x0 + gate1 * x1) * fuse_scale
+    """
+    _g0_vals = []
+    _g1_vals = []
+
+    @classmethod
+    def flush_gate_stats(cls, logger=None):
+        if not cls._g0_vals:
+            return
+        g0 = torch.cat(cls._g0_vals).float()
+        g1 = torch.cat(cls._g1_vals).float()
+        msg = (
+            "[Gate Monitor] g0 mean/min/max/std = "
+            f"{g0.mean():.4f} {g0.min():.4f} {g0.max():.4f} {g0.std():.4f} | "
+            f"g1 mean/min/max/std = "
+            f"{g1.mean():.4f} {g1.min():.4f} {g1.max():.4f} {g1.std():.4f}"
+        )
+        print_log(msg, logger=logger)
+        cls._g0_vals.clear()
+        cls._g1_vals.clear()
+
+    def __init__(self, dim, adapt_dim):
+        super().__init__()
+        self.adapt_dim = adapt_dim
+        self.eps = 1e-6
+
+        self.norm_ly2 = nn.LayerNorm(adapt_dim)
+        self.act = nn.SiLU()
+        self.down = nn.Linear(dim, adapt_dim)
+        self.up = nn.Linear(adapt_dim, dim)
+
+        # Decoupled spectral filters
+        self.adapt16 = nn.Linear(adapt_dim, adapt_dim)
+        self.adapt32 = nn.Linear(adapt_dim, adapt_dim)
+        nn.init.zeros_(self.adapt16.weight)
+        nn.init.zeros_(self.adapt16.bias)
+        nn.init.zeros_(self.adapt32.weight)
+        nn.init.zeros_(self.adapt32.bias)
+
+        # Group energy encoder
+        self.energy_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+        self.energy_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+
+        # Group-level routing logits (per group)
+        self.group_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+        self.group_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+
+        # Point-level residual routing logits (lightweight)
+        self.refine_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+        self.refine_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+
+        # Initialize to near identity/add-style behavior
+        nn.init.zeros_(self.group_mlp0[-1].weight)
+        nn.init.zeros_(self.group_mlp0[-1].bias)
+        nn.init.zeros_(self.group_mlp1[-1].weight)
+        nn.init.zeros_(self.group_mlp1[-1].bias)
+        nn.init.zeros_(self.refine_mlp0[-1].weight)
+        nn.init.zeros_(self.refine_mlp0[-1].bias)
+        nn.init.zeros_(self.refine_mlp1[-1].weight)
+        nn.init.zeros_(self.refine_mlp1[-1].bias)
+
+        self.drop_adapt1 = DropPath(0.)
+        self.drop_adapt2 = DropPath(0.)
+        self.drop_out = nn.Dropout(0.)
+
+        nn.init.xavier_uniform_(self.down.weight)
+        nn.init.zeros_(self.up.weight)
+        nn.init.zeros_(self.up.bias)
+
+        # Routing control
+        self.logit_clip = 2.0
+        self.point_delta_scale = 0.10
+        self.gate_scale = 0.6
+        self.fuse_scale = 1.0  # keep fusion magnitude around add-style after pointwise residual gates
+
+    def _assert_shapes(self, B0, B1, G0, G1):
+        assert B0 == B1, f'Batch mismatch: B0={B0}, B1={B1}'
+        assert G0 == G1, f'Point count mismatch: G0={G0}, G1={G1}'
+
+    def forward(self, input, sub_U, idx):
+        h = self.down(input)
+        h = self.act(h)
+        x = h
+
+        # 1) multi-scale reshape
+        B0, group_num0, group_size0, _ = sub_U[0].shape
+        G0 = group_num0 * group_size0
+        B1, group_num1, group_size1, _ = sub_U[1].shape
+        G1 = group_num1 * group_size1
+        self._assert_shapes(B0, B1, G0, G1)
+
+        x_sorted = sort(x, idx[0])
+        sub_x0 = x_sorted.reshape(B0, group_num0, group_size0, self.adapt_dim)
+        sub_x1 = x_sorted.reshape(B1, group_num1, group_size1, self.adapt_dim)
+
+        # 2) spectral branch 16
+        sub_x_f0 = sub_U[0].transpose(-2, -1) @ sub_x0
+        sub_h_f0 = sub_x_f0
+        sub_x_f0 = self.norm_ly2(sub_x_f0)
+        sub_x_f0 = sub_h_f0 + self.drop_adapt1(self.act(self.drop_out(self.adapt16(sub_x_f0))))
+        sub_x0 = sub_U[0] @ sub_x_f0
+        sub_x0 = sub_x0.reshape(B0, G0, self.adapt_dim)
+        sub_x0_restored = sort(sub_x0, idx[1])
+
+        # 3) spectral branch 32
+        sub_x_f1 = sub_U[1].transpose(-2, -1) @ sub_x1
+        sub_h_f1 = sub_x_f1
+        sub_x_f1 = self.norm_ly2(sub_x_f1)
+        sub_x_f1 = sub_h_f1 + self.drop_adapt2(self.act(self.drop_out(self.adapt32(sub_x_f1))))
+        sub_x1 = sub_U[1] @ sub_x_f1
+        sub_x1 = sub_x1.reshape(B1, G1, self.adapt_dim)
+        sub_x1_restored = sort(sub_x1, idx[1])
+
+        # 4) group energy context
+        energy_0 = torch.sqrt((sub_x_f0 ** 2).mean(dim=2) + 1e-6)
+        energy_1 = torch.sqrt((sub_x_f1 ** 2).mean(dim=2) + 1e-6)
+        ctx_0 = self.energy_mlp0(energy_0)  # (B, group_num0, adapt_dim)
+        ctx_1 = self.energy_mlp1(energy_1)  # (B, group_num1, adapt_dim)
+
+        # broadcast context to point-level and restore order
+        ctx_0_spatial = sort(
+            ctx_0.unsqueeze(2).expand(B0, group_num0, group_size0, self.adapt_dim).reshape(B0, G0, self.adapt_dim),
+            idx[1]
+        )
+        ctx_1_spatial = sort(
+            ctx_1.unsqueeze(2).expand(B1, group_num1, group_size1, self.adapt_dim).reshape(B1, G1, self.adapt_dim),
+            idx[1]
+        )
+
+        # 5) group logits -> point-level by broadcast
+        group_logit0 = self.group_mlp0(ctx_0)  # (B, group_num0, 1)
+        group_logit1 = self.group_mlp1(ctx_1)  # (B, group_num1, 1)
+        group_logit0 = sort(
+            group_logit0.unsqueeze(2).expand(B0, group_num0, group_size0, 1).reshape(B0, G0, 1),
+            idx[1]
+        )
+        group_logit1 = sort(
+            group_logit1.unsqueeze(2).expand(B1, group_num1, group_size1, 1).reshape(B1, G1, 1),
+            idx[1]
+        )
+
+        # 6) point residual logits with context
+        delta_input0 = torch.cat([sub_x0_restored, ctx_0_spatial], dim=-1)
+        delta_input1 = torch.cat([sub_x1_restored, ctx_1_spatial], dim=-1)
+        delta_logit0 = torch.tanh(self.refine_mlp0(delta_input0)) * self.point_delta_scale
+        delta_logit1 = torch.tanh(self.refine_mlp1(delta_input1)) * self.point_delta_scale
+
+        # 7) bounded + gated routing
+        logit0 = torch.clamp(group_logit0 + delta_logit0, -self.logit_clip, self.logit_clip)
+        logit1 = torch.clamp(group_logit1 + delta_logit1, -self.logit_clip, self.logit_clip)
+
+        gate0 = 1.0 + self.gate_scale * torch.tanh(logit0)
+        gate1 = 1.0 + self.gate_scale * torch.tanh(logit1)
+
+        # monitor
+        if not self.training:
+            cls = self.__class__
+            cls._g0_vals.append(gate0.detach().cpu().float().reshape(-1))
+            cls._g1_vals.append(gate1.detach().cpu().float().reshape(-1))
+
+        # 8) fuse (same alignment form)
+        x = (gate0 * sub_x0_restored + gate1 * sub_x1_restored) * self.fuse_scale
+
+        # 9) residual output
+        h = x + h
+        h = self.up(h)
+        return h
+
+
+class MSF_scalar(nn.Module):
+    """
+    Multi-scale Fusion (MSF) Module - 标量门控版本
+    基于点-组联合门控，但输出标量门控（1维）而非通道级门控
+    """
+    def __init__(self, dim, adapt_dim):
+        super().__init__()
+        self.adapt_dim = adapt_dim
+
+        self.norm_ly2 = nn.LayerNorm(adapt_dim)
+        self.act = nn.SiLU()
+        self.down = nn.Linear(dim, adapt_dim)
+        self.up = nn.Linear(adapt_dim, dim)
+
+        # 解耦的独立滤波器
+        self.adapt16 = nn.Linear(adapt_dim, adapt_dim)
+        self.adapt32 = nn.Linear(adapt_dim, adapt_dim)
+        nn.init.zeros_(self.adapt16.weight)
+        nn.init.zeros_(self.adapt16.bias)
+        nn.init.zeros_(self.adapt32.weight)
+        nn.init.zeros_(self.adapt32.bias)
+
+        # 组级能量提取器
+        self.energy_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+        self.energy_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+
+        # 跨尺度差异归一化
+        self.norm_diff = nn.LayerNorm(adapt_dim)
+
+        # 点级门控网络（标量输出）
+        # 输入：点特征 + 组上下文 + 差异特征 = 3 * adapt_dim
+        self.point_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim * 3, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),  # 标量输出
+        )
+        self.point_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim * 3, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),  # 标量输出
+        )
+        # 0初始化最后一层，保证初始状态与baseline等价
+        nn.init.zeros_(self.point_mlp0[-1].weight)
+        nn.init.zeros_(self.point_mlp0[-1].bias)
+        nn.init.zeros_(self.point_mlp1[-1].weight)
+        nn.init.zeros_(self.point_mlp1[-1].bias)
+
+        self.drop_adapt1 = DropPath(0.)
+        self.drop_adapt2 = DropPath(0.)
+        self.drop_out = nn.Dropout(0.)
+
+        nn.init.xavier_uniform_(self.down.weight)
+        nn.init.zeros_(self.up.weight)
+        nn.init.zeros_(self.up.bias)
+
+    def forward(self, input, sub_U, idx):
+        h = self.down(input)
+        h = self.act(h)
+        x = h
+
+        # ==================== 准备数据 ====================
+        B0, group_num0, group_size0, _ = sub_U[0].shape
+        G0 = group_num0 * group_size0
+        B1, group_num1, group_size1, _ = sub_U[1].shape
+        G1 = group_num1 * group_size1
+
+        # 将原始特征按 Z-order 排序
+        x_sorted = sort(x, idx[0])
+        sub_x0 = x_sorted.reshape(B0, group_num0, group_size0, self.adapt_dim)
+        sub_x1 = x_sorted.reshape(B1, group_num1, group_size1, self.adapt_dim)
+
+        # ==================== 尺度 0 (16点组) 频谱处理 ====================
+        sub_x_f0 = sub_U[0].transpose(-2, -1) @ sub_x0
+        sub_h_f0 = sub_x_f0
+        sub_x_f0 = self.norm_ly2(sub_x_f0)
+        sub_x_f0 = sub_h_f0 + self.drop_adapt1(self.act(self.drop_out(self.adapt16(sub_x_f0))))
+        sub_x0 = sub_U[0] @ sub_x_f0
+        sub_x0 = sub_x0.reshape(B0, G0, self.adapt_dim)
+        sub_x0_restored = sort(sub_x0, idx[1])
+
+        # ==================== 尺度 1 (32点组) 频谱处理 ====================
+        sub_x_f1 = sub_U[1].transpose(-2, -1) @ sub_x1
+        sub_h_f1 = sub_x_f1
+        sub_x_f1 = self.norm_ly2(sub_x_f1)
+        sub_x_f1 = sub_h_f1 + self.drop_adapt2(self.act(self.drop_out(self.adapt32(sub_x_f1))))
+        sub_x1 = sub_U[1] @ sub_x_f1
+        sub_x1 = sub_x1.reshape(B1, G1, self.adapt_dim)
+        sub_x1_restored = sort(sub_x1, idx[1])
+
+        # ==================== 组级频谱能量提取 ====================
+        energy_0 = torch.sqrt((sub_x_f0 ** 2).mean(dim=2) + 1e-6)
+        energy_1 = torch.sqrt((sub_x_f1 ** 2).mean(dim=2) + 1e-6)
+        ctx_0 = self.energy_mlp0(energy_0)
+        ctx_1 = self.energy_mlp1(energy_1)
+
+        # 广播到点级
+        ctx_0_exp = ctx_0.unsqueeze(2).expand(B0, group_num0, group_size0, self.adapt_dim)
+        ctx_0_spatial = sort(ctx_0_exp.reshape(B0, G0, self.adapt_dim), idx[1])
+        ctx_1_exp = ctx_1.unsqueeze(2).expand(B1, group_num1, group_size1, self.adapt_dim)
+        ctx_1_spatial = sort(ctx_1_exp.reshape(B1, G1, self.adapt_dim), idx[1])
+
+        # ==================== 跨尺度冲突感知 ====================
+        diff_feat = torch.abs(sub_x0_restored - sub_x1_restored)
+        diff_feat = self.norm_diff(diff_feat)
+
+        # ==================== 点-组联合门控（标量输出） ====================
+        gate_input_0 = torch.cat([sub_x0_restored, ctx_0_spatial, diff_feat], dim=-1)
+        gate_input_1 = torch.cat([sub_x1_restored, ctx_1_spatial, diff_feat], dim=-1)
+
+        # 生成标量门控增量 (B, N, 1)
+        delta_0_point = torch.tanh(self.point_mlp0(gate_input_0))
+        delta_1_point = torch.tanh(self.point_mlp1(gate_input_1))
+
+        # 映射至中心点 1.0，广播到所有通道
+        gate_0_spatial = 1.0 + delta_0_point
+        gate_1_spatial = 1.0 + delta_1_point
+
+        # ==================== 融合 ====================
+        x = gate_0_spatial * sub_x0_restored + gate_1_spatial * sub_x1_restored
+
+        h = x + h
+        h = self.up(h)
+        return h
+
+
+class MSF_scalar_nodiff(nn.Module):
+    """
+    Multi-scale Fusion (MSF) Module - 标量门控版本（无差异特征）
+    与 MSF_scalar 相同，但移除了 diff_feat 输入
+
+    门控监控：
+      验证时每个 batch 的 gate_0/gate_1 值被累积到类变量中，
+      验证轮结束后调用 flush_gate_stats() 打印整轮的统计量并清空缓冲。
+      g0 对应 16点组（较高频），g1 对应 32点组（较低频）。
+    """
+
+    # 类级别 accumulator：跨 batch 收集门控值（验证时使用）
+    _g0_vals: list = []
+    _g1_vals: list = []
+
+    @classmethod
+    def flush_gate_stats(cls, logger=None):
+        """打印本轮验证中 g0/g1 的统计量，并清空缓冲。"""
+        if not cls._g0_vals:
+            return
+        g0 = torch.cat(cls._g0_vals).float()
+        g1 = torch.cat(cls._g1_vals).float()
+        msg = (
+            f"[Gate Monitor] g0(16点高频): "
+            f"mean={g0.mean():.4f}  min={g0.min():.4f}  "
+            f"max={g0.max():.4f}  std={g0.std():.4f} | "
+            f"g1(32点低频): "
+            f"mean={g1.mean():.4f}  min={g1.min():.4f}  "
+            f"max={g1.max():.4f}  std={g1.std():.4f}"
+        )
+        print_log(msg, logger=logger)
+        cls._g0_vals.clear()
+        cls._g1_vals.clear()
+
+    def __init__(self, dim, adapt_dim):
+        super().__init__()
+        self.adapt_dim = adapt_dim
+
+        self.norm_ly2 = nn.LayerNorm(adapt_dim)
+        self.act = nn.SiLU()
+        self.down = nn.Linear(dim, adapt_dim)
+        self.up = nn.Linear(adapt_dim, dim)
+
+        # 解耦的独立滤波器
+        self.adapt16 = nn.Linear(adapt_dim, adapt_dim)
+        self.adapt32 = nn.Linear(adapt_dim, adapt_dim)
+        nn.init.zeros_(self.adapt16.weight)
+        nn.init.zeros_(self.adapt16.bias)
+        nn.init.zeros_(self.adapt32.weight)
+        nn.init.zeros_(self.adapt32.bias)
+
+        # 组级能量提取器
+        self.energy_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+        self.energy_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+
+        # 点级门控网络（标量输出，无diff_feat，输入为2x）
+        self.point_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),  # 标量输出
+        )
+        self.point_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),  # 标量输出
+        )
+        # 0初始化最后一层
+        nn.init.zeros_(self.point_mlp0[-1].weight)
+        nn.init.zeros_(self.point_mlp0[-1].bias)
+        nn.init.zeros_(self.point_mlp1[-1].weight)
+        nn.init.zeros_(self.point_mlp1[-1].bias)
+
+        self.drop_adapt1 = DropPath(0.)
+        self.drop_adapt2 = DropPath(0.)
+        self.drop_out = nn.Dropout(0.)
+
+        nn.init.xavier_uniform_(self.down.weight)
+        nn.init.zeros_(self.up.weight)
+        nn.init.zeros_(self.up.bias)
+
+    def forward(self, input, sub_U, idx):
+        h = self.down(input)
+        h = self.act(h)
+        x = h
+
+        # ==================== 准备数据 ====================
+        B0, group_num0, group_size0, _ = sub_U[0].shape
+        G0 = group_num0 * group_size0
+        B1, group_num1, group_size1, _ = sub_U[1].shape
+        G1 = group_num1 * group_size1
+
+        # 将原始特征按 Z-order 排序
+        x_sorted = sort(x, idx[0])
+        sub_x0 = x_sorted.reshape(B0, group_num0, group_size0, self.adapt_dim)
+        sub_x1 = x_sorted.reshape(B1, group_num1, group_size1, self.adapt_dim)
+
+        # ==================== 尺度 0 (16点组) 频谱处理 ====================
+        sub_x_f0 = sub_U[0].transpose(-2, -1) @ sub_x0
+        sub_h_f0 = sub_x_f0
+        sub_x_f0 = self.norm_ly2(sub_x_f0)
+        sub_x_f0 = sub_h_f0 + self.drop_adapt1(self.act(self.drop_out(self.adapt16(sub_x_f0))))
+        sub_x0 = sub_U[0] @ sub_x_f0
+        sub_x0 = sub_x0.reshape(B0, G0, self.adapt_dim)
+        sub_x0_restored = sort(sub_x0, idx[1])
+
+        # ==================== 尺度 1 (32点组) 频谱处理 ====================
+        sub_x_f1 = sub_U[1].transpose(-2, -1) @ sub_x1
+        sub_h_f1 = sub_x_f1
+        sub_x_f1 = self.norm_ly2(sub_x_f1)
+        sub_x_f1 = sub_h_f1 + self.drop_adapt2(self.act(self.drop_out(self.adapt32(sub_x_f1))))
+        sub_x1 = sub_U[1] @ sub_x_f1
+        sub_x1 = sub_x1.reshape(B1, G1, self.adapt_dim)
+        sub_x1_restored = sort(sub_x1, idx[1])
+
+        # ==================== 组级频谱能量提取 ====================
+        energy_0 = torch.sqrt((sub_x_f0 ** 2).mean(dim=2) + 1e-6)
+        energy_1 = torch.sqrt((sub_x_f1 ** 2).mean(dim=2) + 1e-6)
+        ctx_0 = self.energy_mlp0(energy_0)
+        ctx_1 = self.energy_mlp1(energy_1)
+
+        # 广播到点级
+        ctx_0_exp = ctx_0.unsqueeze(2).expand(B0, group_num0, group_size0, self.adapt_dim)
+        ctx_0_spatial = sort(ctx_0_exp.reshape(B0, G0, self.adapt_dim), idx[1])
+        ctx_1_exp = ctx_1.unsqueeze(2).expand(B1, group_num1, group_size1, self.adapt_dim)
+        ctx_1_spatial = sort(ctx_1_exp.reshape(B1, G1, self.adapt_dim), idx[1])
+
+        # ==================== 点-组联合门控（标量输出，无diff_feat） ====================
+        gate_input_0 = torch.cat([sub_x0_restored, ctx_0_spatial], dim=-1)
+        gate_input_1 = torch.cat([sub_x1_restored, ctx_1_spatial], dim=-1)
+
+        # 生成标量门控增量 (B, N, 1)
+        delta_0_point = torch.tanh(self.point_mlp0(gate_input_0))
+        delta_1_point = torch.tanh(self.point_mlp1(gate_input_1))
+
+        # 映射至中心点 1.0
+        gate_0_spatial = 1.0 + delta_0_point
+        gate_1_spatial = 1.0 + delta_1_point
+
+        # ==================== 融合 ====================
+        x = gate_0_spatial * sub_x0_restored + gate_1_spatial * sub_x1_restored
+
+        h = x + h
+        h = self.up(h)
+        return h
+
+
+class MSF_scalar_convex(nn.Module):
+    """
+    Multi-scale Fusion (MSF) Module - 归一化凸组合版本 (Convex Combination)
+
+    改进动机：
+      MSF_scalar 采用双门控 gate_0, gate_1 ∈ [0,2] 独立浮动，理论上融合特征的
+      总尺度（Total Feature Scale）可在 [0, 4] 之间震荡，存在"特征模长失控"隐患。
+      为彻底锁定融合后的特征尺度，本版本引入凸组合约束：
+        x = w * x0 + (1-w) * x1,  w = sigmoid(MLP([x0, x1, ctx0, ctx1]))
+      此时 w + (1-w) = 1 恒成立，融合特征模长与原始特征始终在同一量级内，
+      消除了解码器偏移量因尺度震荡而发散的风险。
+
+    与 MSF_scalar 的关键区别：
+      - 将独立的两路 tanh 门控替换为单路 sigmoid 凸组合权重 w
+      - 门控 MLP 同时观察两个尺度的点特征 + 组能量上下文（对称设计），
+        而非各自只看自己一侧（AI 原方案为单侧，此处修正为双侧）
+      - 参数量从 2×MLP 降为 1×MLP（输入 4×adapt_dim → 1）
+
+    初始等价性：
+      zero-init 最后一层 → 初始 w = sigmoid(0) = 0.5 → x = 0.5*x0 + 0.5*x1
+      （相比 MSF_scalar 初始 x = 1.0*x0 + 1.0*x1，初始幅度缩小一半，
+       但由 residual h = x + h 和 up 的 zero-init 保障整体初始等价性）
+    """
+    def __init__(self, dim, adapt_dim):
+        super().__init__()
+        self.adapt_dim = adapt_dim
+
+        self.norm_ly2 = nn.LayerNorm(adapt_dim)
+        self.act = nn.SiLU()
+        self.down = nn.Linear(dim, adapt_dim)
+        self.up = nn.Linear(adapt_dim, dim)
+
+        # 解耦的独立频谱滤波器（与 MSF_scalar 相同）
+        self.adapt16 = nn.Linear(adapt_dim, adapt_dim)
+        self.adapt32 = nn.Linear(adapt_dim, adapt_dim)
+        nn.init.zeros_(self.adapt16.weight)
+        nn.init.zeros_(self.adapt16.bias)
+        nn.init.zeros_(self.adapt32.weight)
+        nn.init.zeros_(self.adapt32.bias)
+
+        # 组级频谱能量提取器（与 MSF_scalar 相同）
+        self.energy_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+        self.energy_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+
+        # 凸组合权重网络：双侧对称输入 [x0, x1, ctx0, ctx1] = 4 * adapt_dim
+        # 输出单标量 w，经 sigmoid 映射到 (0, 1)
+        # zero-init 最后一层保证训练初始 w = 0.5（等权平均）
+        self.convex_gate = nn.Sequential(
+            nn.Linear(adapt_dim * 4, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, 1),
+        )
+        nn.init.zeros_(self.convex_gate[-1].weight)
+        nn.init.zeros_(self.convex_gate[-1].bias)
+
+        self.drop_adapt1 = DropPath(0.)
+        self.drop_adapt2 = DropPath(0.)
+        self.drop_out = nn.Dropout(0.)
+
+        nn.init.xavier_uniform_(self.down.weight)
+        nn.init.zeros_(self.up.weight)
+        nn.init.zeros_(self.up.bias)
+
+    def forward(self, input, sub_U, idx):
+        h = self.down(input)
+        h = self.act(h)
+        x = h
+
+        B0, group_num0, group_size0, _ = sub_U[0].shape
+        G0 = group_num0 * group_size0
+        B1, group_num1, group_size1, _ = sub_U[1].shape
+        G1 = group_num1 * group_size1
+
+        x_sorted = sort(x, idx[0])
+        sub_x0 = x_sorted.reshape(B0, group_num0, group_size0, self.adapt_dim)
+        sub_x1 = x_sorted.reshape(B1, group_num1, group_size1, self.adapt_dim)
+
+        # ==================== 尺度 0 (16点组) 频谱处理 ====================
+        sub_x_f0 = sub_U[0].transpose(-2, -1) @ sub_x0
+        sub_h_f0 = sub_x_f0
+        sub_x_f0 = self.norm_ly2(sub_x_f0)
+        sub_x_f0 = sub_h_f0 + self.drop_adapt1(self.act(self.drop_out(self.adapt16(sub_x_f0))))
+        sub_x0 = sub_U[0] @ sub_x_f0
+        sub_x0 = sub_x0.reshape(B0, G0, self.adapt_dim)
+        sub_x0_restored = sort(sub_x0, idx[1])
+
+        # ==================== 尺度 1 (32点组) 频谱处理 ====================
+        sub_x_f1 = sub_U[1].transpose(-2, -1) @ sub_x1
+        sub_h_f1 = sub_x_f1
+        sub_x_f1 = self.norm_ly2(sub_x_f1)
+        sub_x_f1 = sub_h_f1 + self.drop_adapt2(self.act(self.drop_out(self.adapt32(sub_x_f1))))
+        sub_x1 = sub_U[1] @ sub_x_f1
+        sub_x1 = sub_x1.reshape(B1, G1, self.adapt_dim)
+        sub_x1_restored = sort(sub_x1, idx[1])
+
+        # ==================== 组级频谱能量提取 & 广播到点级 ====================
+        energy_0 = torch.sqrt((sub_x_f0 ** 2).mean(dim=2) + 1e-6)
+        energy_1 = torch.sqrt((sub_x_f1 ** 2).mean(dim=2) + 1e-6)
+        ctx_0 = self.energy_mlp0(energy_0)
+        ctx_1 = self.energy_mlp1(energy_1)
+
+        ctx_0_exp = ctx_0.unsqueeze(2).expand(B0, group_num0, group_size0, self.adapt_dim)
+        ctx_0_spatial = sort(ctx_0_exp.reshape(B0, G0, self.adapt_dim), idx[1])
+        ctx_1_exp = ctx_1.unsqueeze(2).expand(B1, group_num1, group_size1, self.adapt_dim)
+        ctx_1_spatial = sort(ctx_1_exp.reshape(B1, G1, self.adapt_dim), idx[1])
+
+        # ==================== 凸组合融合 ====================
+        # 双侧对称拼接：同时感知两个尺度的点特征和频谱能量上下文
+        # 相比 MSF_scalar 的双路独立 tanh 门控，此处强制 w + (1-w) = 1，
+        # 保证融合后特征模长始终在合理范围内，避免解码器偏移量发散
+        gate_input = torch.cat([
+            sub_x0_restored, sub_x1_restored,
+            ctx_0_spatial,   ctx_1_spatial,
+        ], dim=-1)  # (B, N, 4 * adapt_dim)
+
+        w = torch.sigmoid(self.convex_gate(gate_input))  # (B, N, 1)，∈ (0, 1)
+        x = w * sub_x0_restored + (1.0 - w) * sub_x1_restored
+
+        h = x + h
+        h = self.up(h)
+        return h
+
+
+class _MSF_pure_GroupBase(nn.Module):
+    """
+    MSF 纯组级通道门控共享骨架：组能量 -> group_mlp -> 广播到点级 -> 子类门控 -> 融合。
+    验证轮结束后调用 flush_gate_stats() 打印整轮统计量并清空缓冲。
+    """
+    gate_monitor_label = 'pure_group'
+    _g0_vals = []
+    _g1_vals = []
+
+    @classmethod
+    def flush_gate_stats(cls, logger=None):
+        if not cls._g0_vals:
+            return
+        g0 = torch.cat(cls._g0_vals).float()
+        g1 = torch.cat(cls._g1_vals).float()
+        msg = (
+            f"[Gate Monitor][{cls.gate_monitor_label}] g0 mean/min/max/std = "
+            f"{g0.mean():.4f} {g0.min():.4f} {g0.max():.4f} {g0.std():.4f} | "
+            f"g1 mean/min/max/std = "
+            f"{g1.mean():.4f} {g1.min():.4f} {g1.max():.4f} {g1.std():.4f}"
+        )
+        print_log(msg, logger=logger)
+        cls._g0_vals.clear()
+        cls._g1_vals.clear()
+
+    def __init__(self, dim, adapt_dim):
+        super().__init__()
+        self.dim = dim
+        self.adapt_dim = adapt_dim
+        self.eps = 1e-6
+        self.gate_scale = 0.5
+
+        self.norm_ly2 = nn.LayerNorm(adapt_dim)
+        self.act = nn.SiLU()
+        self.down = nn.Linear(dim, adapt_dim)
+        self.up = nn.Linear(adapt_dim, dim)
+
+        self.adapt16 = nn.Linear(adapt_dim, adapt_dim)
+        self.adapt32 = nn.Linear(adapt_dim, adapt_dim)
+        nn.init.zeros_(self.adapt16.weight)
+        nn.init.zeros_(self.adapt16.bias)
+        nn.init.zeros_(self.adapt32.weight)
+        nn.init.zeros_(self.adapt32.bias)
+
+        self.energy_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+        self.energy_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim // 2),
+            nn.GELU(),
+            nn.Linear(adapt_dim // 2, adapt_dim),
+        )
+
+        self.group_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, adapt_dim),
+        )
+        self.group_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, adapt_dim),
+        )
+
+        nn.init.zeros_(self.group_mlp0[-1].weight)
+        nn.init.zeros_(self.group_mlp0[-1].bias)
+        nn.init.zeros_(self.group_mlp1[-1].weight)
+        nn.init.zeros_(self.group_mlp1[-1].bias)
+
+        self.drop_adapt1 = DropPath(0.)
+        self.drop_adapt2 = DropPath(0.)
+        self.drop_out = nn.Dropout(0.)
+
+        nn.init.xavier_uniform_(self.down.weight)
+        nn.init.zeros_(self.up.weight)
+        nn.init.zeros_(self.up.bias)
+
+        self.logit_clip = 2.0
+        self.export_route_to_decoder = False
+        self._route_feat = None
+
+    def _spatial_gates(self, logit0_spatial, logit1_spatial):
+        raise NotImplementedError
+
+    def _build_route_feat(
+        self,
+        sub_x0_res,
+        sub_x1_res,
+        logit0_spatial,
+        logit1_spatial,
+        energy_0,
+        energy_1,
+        B0,
+        B1,
+        group_num0,
+        group_num1,
+        group_size0,
+        group_size1,
+        G0,
+        G1,
+        idx,
+    ):
+        """Per-point MSF routing summary for decoder memory conditioning (dim=4)."""
+        conflict = (sub_x0_res - sub_x1_res).abs().mean(dim=-1, keepdim=True)
+        w = torch.sigmoid((logit0_spatial - logit1_spatial).mean(dim=-1, keepdim=True))
+        # energy_* : (B, group_num, adapt_dim) -> per-group scalar then broadcast to points
+        e0_group = energy_0.mean(dim=-1, keepdim=True)
+        e1_group = energy_1.mean(dim=-1, keepdim=True)
+        e0 = sort(
+            e0_group.unsqueeze(2).expand(B0, group_num0, group_size0, 1).reshape(B0, G0, 1),
+            idx[1],
+        )
+        e1 = sort(
+            e1_group.unsqueeze(2).expand(B1, group_num1, group_size1, 1).reshape(B1, G1, 1),
+            idx[1],
+        )
+        return torch.cat([w, conflict, e0, e1], dim=-1)
+
+    def _apply_point_refine_logits(
+        self,
+        logit0_spatial,
+        logit1_spatial,
+        sub_x0_res,
+        sub_x1_res,
+        ctx_0,
+        ctx_1,
+        B0,
+        B1,
+        group_num0,
+        group_num1,
+        group_size0,
+        group_size1,
+        G0,
+        G1,
+        idx,
+    ):
+        if not hasattr(self, 'refine_mlp0'):
+            return logit0_spatial, logit1_spatial
+
+        ctx_0_spatial = sort(
+            ctx_0.unsqueeze(2).expand(B0, group_num0, group_size0, self.adapt_dim).reshape(B0, G0, self.adapt_dim),
+            idx[1],
+        )
+        ctx_1_spatial = sort(
+            ctx_1.unsqueeze(2).expand(B1, group_num1, group_size1, self.adapt_dim).reshape(B1, G1, self.adapt_dim),
+            idx[1],
+        )
+
+        delta0 = torch.tanh(self.refine_mlp0(torch.cat([sub_x0_res, ctx_0_spatial], dim=-1))) * self.point_delta_scale
+        delta1 = torch.tanh(self.refine_mlp1(torch.cat([sub_x1_res, ctx_1_spatial], dim=-1))) * self.point_delta_scale
+
+        logit0_spatial = torch.clamp(logit0_spatial + delta0, -self.logit_clip, self.logit_clip)
+        logit1_spatial = torch.clamp(logit1_spatial + delta1, -self.logit_clip, self.logit_clip)
+
+        if not self.training:
+            cls = self.__class__
+            if hasattr(cls, '_delta0_vals'):
+                cls._delta0_vals.append(delta0.detach().cpu().float().reshape(-1))
+                cls._delta1_vals.append(delta1.detach().cpu().float().reshape(-1))
+
+        return logit0_spatial, logit1_spatial
+
+    def forward(self, input, sub_U, idx):
+        h_down = self.act(self.down(input))
+
+        B0, group_num0, group_size0, _ = sub_U[0].shape
+        G0 = group_num0 * group_size0
+        B1, group_num1, group_size1, _ = sub_U[1].shape
+        G1 = group_num1 * group_size1
+
+        x_sorted = sort(h_down, idx[0])
+        sub_x0 = x_sorted.reshape(B0, group_num0, group_size0, self.adapt_dim)
+        sub_x1 = x_sorted.reshape(B1, group_num1, group_size1, self.adapt_dim)
+
+        # Scale 16
+        sub_x_f0 = sub_U[0].transpose(-2, -1) @ sub_x0
+        sub_h_f0 = sub_x_f0
+        sub_x_f0 = self.norm_ly2(sub_x_f0)
+        sub_x_f0 = sub_h_f0 + self.drop_adapt1(self.act(self.drop_out(self.adapt16(sub_x_f0))))
+        sub_x0_out = sub_U[0] @ sub_x_f0
+        sub_x0_res = sort(sub_x0_out.reshape(B0, G0, self.adapt_dim), idx[1])
+
+        # Scale 32
+        sub_x_f1 = sub_U[1].transpose(-2, -1) @ sub_x1
+        sub_h_f1 = sub_x_f1
+        sub_x_f1 = self.norm_ly2(sub_x_f1)
+        sub_x_f1 = sub_h_f1 + self.drop_adapt2(self.act(self.drop_out(self.adapt32(sub_x_f1))))
+        sub_x1_out = sub_U[1] @ sub_x_f1
+        sub_x1_res = sort(sub_x1_out.reshape(B1, G1, self.adapt_dim), idx[1])
+
+        # 纯组级门控计算
+        energy_0 = torch.sqrt((sub_x_f0 ** 2).mean(dim=2) + self.eps)
+        energy_1 = torch.sqrt((sub_x_f1 ** 2).mean(dim=2) + self.eps)
+
+        ctx_0 = self.energy_mlp0(energy_0)
+        ctx_1 = self.energy_mlp1(energy_1)
+
+        logit0 = torch.clamp(self.group_mlp0(ctx_0), -self.logit_clip, self.logit_clip)
+        logit1 = torch.clamp(self.group_mlp1(ctx_1), -self.logit_clip, self.logit_clip)
+
+        logit0_spatial = sort(
+            logit0.unsqueeze(2).expand(B0, group_num0, group_size0, self.adapt_dim).reshape(B0, G0, self.adapt_dim),
+            idx[1],
+        )
+        logit1_spatial = sort(
+            logit1.unsqueeze(2).expand(B1, group_num1, group_size1, self.adapt_dim).reshape(B1, G1, self.adapt_dim),
+            idx[1],
+        )
+
+        logit0_spatial, logit1_spatial = self._apply_point_refine_logits(
+            logit0_spatial,
+            logit1_spatial,
+            sub_x0_res,
+            sub_x1_res,
+            ctx_0,
+            ctx_1,
+            B0,
+            B1,
+            group_num0,
+            group_num1,
+            group_size0,
+            group_size1,
+            G0,
+            G1,
+            idx,
+        )
+
+        g0_spatial, g1_spatial = self._spatial_gates(logit0_spatial, logit1_spatial)
+
+        if not self.training:
+            cls = self.__class__
+            cls._g0_vals.append(g0_spatial.detach().cpu().float().reshape(-1))
+            cls._g1_vals.append(g1_spatial.detach().cpu().float().reshape(-1))
+
+        if getattr(self, '_export_vis', False):
+            self._vis_cache = {
+                'g0': g0_spatial.detach().float().cpu(),
+                'g1': g1_spatial.detach().float().cpu(),
+                'spec_energy_0': (sub_x_f0.pow(2).mean(dim=-1)).detach().float().cpu(),
+                'spec_energy_1': (sub_x_f1.pow(2).mean(dim=-1)).detach().float().cpu(),
+            }
+
+        x_fused = g0_spatial * sub_x0_res + g1_spatial * sub_x1_res
+        h_residual = x_fused + h_down
+
+        if self.export_route_to_decoder:
+            self._route_feat = self._build_route_feat(
+                sub_x0_res,
+                sub_x1_res,
+                logit0_spatial,
+                logit1_spatial,
+                energy_0,
+                energy_1,
+                B0,
+                B1,
+                group_num0,
+                group_num1,
+                group_size0,
+                group_size1,
+                G0,
+                G1,
+                idx,
+            )
+
+        return self.up(h_residual)
+
+
+class MSF_pure_Group(_MSF_pure_GroupBase):
+    """
+    Multi-scale Fusion (MSF) - 纯组级通道门控 + Softmax 竞争路由
+    g = 1 + (softmax - 0.5)，每通道 g0 + g1 = 2
+    """
+    gate_monitor_label = 'softmax'
+    _g0_vals = []
+    _g1_vals = []
+
+    def _spatial_gates(self, logit0_spatial, logit1_spatial):
+        gate = torch.softmax(torch.stack([logit0_spatial, logit1_spatial], dim=-2), dim=-2)
+        g0_spatial = 1.0 + (gate[:, :, 0, :] - 0.5)
+        g1_spatial = 1.0 + (gate[:, :, 1, :] - 0.5)
+        return g0_spatial, g1_spatial
+
+
+class MSF_pure_Group_tanh(_MSF_pure_GroupBase):
+    """纯组级通道门控 + 独立 Tanh 路由：g_i = 1 + alpha * tanh(l_i)"""
+    gate_monitor_label = 'tanh'
+    _g0_vals = []
+    _g1_vals = []
+
+    def _spatial_gates(self, logit0_spatial, logit1_spatial):
+        g0_spatial = 1.0 + self.gate_scale * torch.tanh(logit0_spatial)
+        g1_spatial = 1.0 + self.gate_scale * torch.tanh(logit1_spatial)
+        return g0_spatial, g1_spatial
+
+
+class MSF_pure_Group_sigmoid(_MSF_pure_GroupBase):
+    """纯组级通道门控 + 独立 Sigmoid 对称路由：g_i = 1 + alpha * (2*sigmoid(l_i) - 1)"""
+    gate_monitor_label = 'sigmoid'
+    _g0_vals = []
+    _g1_vals = []
+
+    def _spatial_gates(self, logit0_spatial, logit1_spatial):
+        g0_spatial = 1.0 + self.gate_scale * (2.0 * torch.sigmoid(logit0_spatial) - 1.0)
+        g1_spatial = 1.0 + self.gate_scale * (2.0 * torch.sigmoid(logit1_spatial) - 1.0)
+        return g0_spatial, g1_spatial
+
+
+class MSF_pure_Group_sigmoid_point(_MSF_pure_GroupBase):
+    """
+    Sigmoid 组级通道门控 + 轻量点级通道残差。
+    logit = logit_group_broadcast + point_delta_scale * tanh(refine_mlp([x_point, ctx_point]))
+    refine 末层零初始化；point_delta_scale 较小，避免破坏组内门控一致性。
+    """
+    gate_monitor_label = 'sigmoid_point'
+    _g0_vals = []
+    _g1_vals = []
+    _delta0_vals = []
+    _delta1_vals = []
+    point_delta_scale = 0.05
+
+    @classmethod
+    def flush_gate_stats(cls, logger=None):
+        super().flush_gate_stats(logger=logger)
+        if not cls._delta0_vals:
+            return
+        d0 = torch.cat(cls._delta0_vals).float()
+        d1 = torch.cat(cls._delta1_vals).float()
+        msg = (
+            f"[Gate Monitor][{cls.gate_monitor_label}] delta0 mean/std = "
+            f"{d0.mean():.4f} {d0.std():.4f} | delta1 mean/std = "
+            f"{d1.mean():.4f} {d1.std():.4f} | point_delta_scale = {cls.point_delta_scale}"
+        )
+        print_log(msg, logger=logger)
+        cls._delta0_vals.clear()
+        cls._delta1_vals.clear()
+
+    def __init__(self, dim, adapt_dim):
+        super().__init__(dim, adapt_dim)
+        self.refine_mlp0 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, adapt_dim),
+        )
+        self.refine_mlp1 = nn.Sequential(
+            nn.Linear(adapt_dim * 2, adapt_dim),
+            nn.GELU(),
+            nn.Linear(adapt_dim, adapt_dim),
+        )
+        nn.init.zeros_(self.refine_mlp0[-1].weight)
+        nn.init.zeros_(self.refine_mlp0[-1].bias)
+        nn.init.zeros_(self.refine_mlp1[-1].weight)
+        nn.init.zeros_(self.refine_mlp1[-1].bias)
+
+    def _spatial_gates(self, logit0_spatial, logit1_spatial):
+        g0_spatial = 1.0 + self.gate_scale * (2.0 * torch.sigmoid(logit0_spatial) - 1.0)
+        g1_spatial = 1.0 + self.gate_scale * (2.0 * torch.sigmoid(logit1_spatial) - 1.0)
+        return g0_spatial, g1_spatial
+
+
 class SelfAttnBlockApi(nn.Module):
     r'''
         1. Norm Encoder Block 
@@ -118,7 +1364,7 @@ class SelfAttnBlockApi(nn.Module):
     def __init__(
             self, dim, num_heads, mlp_ratio=4., qkv_bias=False, drop=0., attn_drop=0., init_values=None,
             drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm, block_style='attn-deform', combine_style='concat',
-            k=10, n_group=2
+            k=10, n_group=2, adapter_mode=None
         ):
 
         super().__init__()
@@ -131,9 +1377,32 @@ class SelfAttnBlockApi(nn.Module):
         self.norm2 = norm_layer(dim)
         self.ls2 = LayerScale(dim, init_values=init_values) if init_values else nn.Identity()
         self.mlp = Mlp(in_features=dim, hidden_features=int(dim * mlp_ratio), act_layer=act_layer, drop=drop)
-        self.drop_path2 = DropPath(drop_path) if drop_path > 0. else nn.Identity()        
+        self.drop_path2 = DropPath(drop_path) if drop_path > 0. else nn.Identity()
 
-        self.gft_adapter = MSF(dim, 36)
+        # 根据 adapter_mode 选择对应的适配器
+        if adapter_mode == 'pcsa':
+            self.gft_adapter = PCSA(dim, 36)
+        elif adapter_mode == 'msf_scalar':
+            self.gft_adapter = MSF_scalar(dim, 36)
+        elif adapter_mode == 'msf_scalar_nodiff':
+            self.gft_adapter = MSF_scalar_nodiff(dim, 36)
+        elif adapter_mode == 'msf_scalar_convex':
+            self.gft_adapter = MSF_scalar_convex(dim, 36)
+        elif adapter_mode == 'msf_scalar_group_refined_v2_final':
+            self.gft_adapter = MSF_scalar_group_refined_v2_final(dim, 36)
+        elif adapter_mode == 'msf_scalar_group_refined_v2_tanh':
+            self.gft_adapter = MSF_scalar_group_refined_v2_tanh(dim, 36)
+        elif adapter_mode == 'msf_pure_group':
+            self.gft_adapter = MSF_pure_Group(dim, 36)
+        elif adapter_mode == 'msf_pure_group_tanh':
+            self.gft_adapter = MSF_pure_Group_tanh(dim, 36)
+        elif adapter_mode == 'msf_pure_group_sigmoid':
+            self.gft_adapter = MSF_pure_Group_sigmoid(dim, 36)
+        elif adapter_mode == 'msf_pure_group_sigmoid_point':
+            self.gft_adapter = MSF_pure_Group_sigmoid_point(dim, 36)
+        else:
+            # 默认使用原始 MSF（组级门控）
+            self.gft_adapter = MSF(dim, 36)
 
         # Api desigin
         block_tokens = block_style.split('-')
@@ -410,17 +1679,18 @@ class TransformerEncoder(nn.Module):
     """
     def __init__(self, embed_dim=256, depth=4, num_heads=4, mlp_ratio=4., qkv_bias=False, init_values=None,
         drop_rate=0., attn_drop_rate=0., drop_path_rate=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm,
-        block_style_list=['attn-deform'], combine_style='concat', k=10, n_group=2):
+        block_style_list=['attn-deform'], combine_style='concat', k=10, n_group=2, adapter_mode=None):
         super().__init__()
         self.k = k
         self.blocks = nn.ModuleList()
         for i in range(depth):
             self.blocks.append(SelfAttnBlockApi(
                 dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, init_values=init_values,
-                drop=drop_rate, attn_drop=attn_drop_rate, 
+                drop=drop_rate, attn_drop=attn_drop_rate,
                 drop_path = drop_path_rate[i] if isinstance(drop_path_rate, list) else drop_path_rate,
                 act_layer=act_layer, norm_layer=norm_layer,
-                block_style=block_style_list[i], combine_style=combine_style, k=k, n_group=n_group
+                block_style=block_style_list[i], combine_style=combine_style, k=k, n_group=n_group,
+                adapter_mode=adapter_mode
             ))
 
     def forward(self, x, pos, sub_U, idx_add):
@@ -483,7 +1753,7 @@ class PointTransformerEncoder(nn.Module):
             drop_rate=0., attn_drop_rate=0., drop_path_rate=0.,
             norm_layer=None, act_layer=None,
             block_style_list=['attn-deform'], combine_style='concat',
-            k=10, n_group=2
+            k=10, n_group=2, adapter_mode=None
         ):
         super().__init__()
         norm_layer = norm_layer or partial(nn.LayerNorm, eps=1e-6)
@@ -500,15 +1770,16 @@ class PointTransformerEncoder(nn.Module):
             mlp_ratio=mlp_ratio,
             qkv_bias=qkv_bias,
             init_values=init_values,
-            drop_rate=drop_rate, 
+            drop_rate=drop_rate,
             attn_drop_rate=attn_drop_rate,
             drop_path_rate = dpr,
-            norm_layer=norm_layer, 
+            norm_layer=norm_layer,
             act_layer=act_layer,
             block_style_list=block_style_list,
             combine_style=combine_style,
             k=k,
-            n_group=n_group)
+            n_group=n_group,
+            adapter_mode=adapter_mode)
         self.norm = norm_layer(embed_dim) 
         self.apply(self._init_weights)
 
@@ -892,6 +2163,28 @@ def get_laplacian(adj_matrix, normalize=True):
 
     return L
 
+
+def resolve_msf_route_mode(config):
+    """MSF route injection mode: none | mem | rebuild | query | query_rebuild."""
+    mode = getattr(config, 'msf_route_mode', None)
+    if mode is None or str(mode).strip() == '':
+        mode = 'mem' if bool(
+            getattr(config, 'use_msf_route_to_decoder', getattr(config, 'use_msf_route_decoder', False))
+        ) else 'none'
+    return str(mode).lower()
+
+
+def msf_route_should_export(mode):
+    return mode in ('mem', 'rebuild', 'query', 'query_rebuild')
+
+
+def pool_msf_route_by_knn(route_feat, coor, query_pos, k=3):
+    """KNN pool per-query MSF route summary from encoder centers (B,M,4)."""
+    idx = knn_point(k, coor, query_pos)
+    grouped = index_points(route_feat, idx)
+    return grouped.mean(dim=2)
+
+
 ######################################## PCTransformer ########################################   
 class PCTransformer(nn.Module):
     def __init__(self, config):
@@ -960,6 +2253,39 @@ class PCTransformer(nn.Module):
             nn.Sigmoid()
         )
 
+        self.msf_route_mode = resolve_msf_route_mode(config)
+        self.route_dim = int(getattr(config, 'msf_route_dim', 4))
+        self.use_msf_route_decoder = self.msf_route_mode == 'mem'
+        self.export_msf_route = msf_route_should_export(self.msf_route_mode)
+
+        if self.use_msf_route_decoder:
+            dec_dim = decoder_config.embed_dim
+            self.route_proj = nn.Linear(self.route_dim, dec_dim)
+            nn.init.zeros_(self.route_proj.weight)
+            nn.init.zeros_(self.route_proj.bias)
+            self.route_scale = nn.Parameter(torch.tensor(0.1))
+        else:
+            self.route_proj = None
+            self.route_scale = None
+
+        if self.export_msf_route:
+            last_adapter = self.encoder.blocks.blocks[-1].gft_adapter
+            if hasattr(last_adapter, 'export_route_to_decoder'):
+                last_adapter.export_route_to_decoder = True
+            else:
+                print_log(
+                    f'msf_route_mode={self.msf_route_mode} but last encoder block has no MSF gft_adapter; route disabled.',
+                    logger='MODEL',
+                )
+                self.export_msf_route = False
+                self.use_msf_route_decoder = False
+                self.msf_route_mode = 'none'
+
+        print_log(
+            f'MSF route: mode={self.msf_route_mode}, export={self.export_msf_route}, mem_inject={self.use_msf_route_decoder}',
+            logger='MODEL',
+        )
+
         self.apply(self._init_weights)
 
     def _init_weights(self, m):
@@ -970,6 +2296,28 @@ class PCTransformer(nn.Module):
         elif isinstance(m, nn.LayerNorm):
             nn.init.constant_(m.bias, 0)
             nn.init.constant_(m.weight, 1.0)
+
+    def _collect_msf_route_feat(self):
+        if not self.export_msf_route:
+            return None
+        for block in reversed(self.encoder.blocks.blocks):
+            adapter = getattr(block, 'gft_adapter', None)
+            if adapter is not None and getattr(adapter, '_route_feat', None) is not None:
+                return adapter._route_feat
+        return None
+
+    def _inject_msf_route_to_mem(self, mem):
+        if not self.use_msf_route_decoder:
+            return mem
+        route_feat = self._collect_msf_route_feat()
+        if route_feat is None:
+            return mem
+        if route_feat.shape[1] != mem.shape[1]:
+            raise RuntimeError(
+                f'MSF route_feat length {route_feat.shape[1]} != mem length {mem.shape[1]}'
+            )
+        delta = self.route_proj(route_feat.to(dtype=mem.dtype, device=mem.device))
+        return mem + self.route_scale * delta
 
     def forward(self, xyz):
         bs = xyz.size(0)
@@ -998,6 +2346,7 @@ class PCTransformer(nn.Module):
         coarse = torch.cat([coarse, coarse_inp], dim=1) # B 224+128 3?
 
         mem = self.mem_link(x)
+        mem = self._inject_msf_route_to_mem(mem)
 
         # query selection
         query_ranking = self.query_ranking(coarse) # b n 1
@@ -1021,7 +2370,7 @@ class PCTransformer(nn.Module):
             # forward decoder
             q = self.decoder(q=q, v=mem, q_pos=coarse, v_pos=coor, denoise_length=denoise_length)
 
-            return q, coarse, denoise_length
+            return q, coarse, denoise_length, self._collect_msf_route_feat(), coor
 
         else:
             # produce query
@@ -1033,7 +2382,7 @@ class PCTransformer(nn.Module):
             # forward decoder
             q = self.decoder(q=q, v=mem, q_pos=coarse, v_pos=coor)
 
-            return q, coarse, 0
+            return q, coarse, 0, self._collect_msf_route_feat(), coor
 
 ######################################## PoinTr ########################################  
 
@@ -1050,6 +2399,27 @@ class AdaPoinTr_PGST(nn.Module):
 
         self.fold_step = 8
         self.base_model = PCTransformer(config)
+
+        self.msf_route_mode = resolve_msf_route_mode(config)
+        self.msf_route_knn_k = int(getattr(config, 'msf_route_knn_k', 3))
+        self.route_dim = int(getattr(config, 'msf_route_dim', 4))
+        self.use_msf_rebuild_route = self.msf_route_mode in ('rebuild', 'query_rebuild')
+        if self.use_msf_rebuild_route:
+            self.rebuild_route_proj = nn.Sequential(
+                nn.Linear(self.route_dim, self.trans_dim),
+                nn.GELU(),
+                nn.Linear(self.trans_dim, self.trans_dim),
+            )
+            nn.init.zeros_(self.rebuild_route_proj[-1].weight)
+            nn.init.zeros_(self.rebuild_route_proj[-1].bias)
+        else:
+            self.rebuild_route_proj = None
+
+        print_log(
+            f'AdaPoinTr MSF rebuild route: mode={self.msf_route_mode}, '
+            f'rebuild_cond={self.use_msf_rebuild_route}, knn_k={self.msf_route_knn_k}',
+            logger='MODEL',
+        )
         
         if self.decoder_type == 'fold':
             self.factor = self.fold_step**2
@@ -1069,10 +2439,51 @@ class AdaPoinTr_PGST(nn.Module):
             nn.Conv1d(1024, 1024, 1)
         )
         self.reduce_map = nn.Linear(self.trans_dim + 1027, self.trans_dim)
+        loss_cfg = getattr(config, 'loss_config', None)
+        self.cover_weight = float(getattr(loss_cfg, 'cover_weight', 0.0) or 0.0) if loss_cfg else 0.0
+        self.cover_critical_ratio = float(
+            getattr(loss_cfg, 'cover_critical_ratio', 0.0) or 0.0
+        ) if loss_cfg else 0.0
         self.build_loss_func()
 
     def build_loss_func(self):
         self.loss_func = ChamferDistanceL1()
+
+    def _chamfer_loss(self, pred, gt):
+        if self.cover_weight > 0:
+            from utils.chamfer_loss_utils import chamfer_l1_with_cover
+            return chamfer_l1_with_cover(
+                pred,
+                gt,
+                cover_weight=self.cover_weight,
+                cover_critical_ratio=self.cover_critical_ratio,
+            )
+        return self.loss_func(pred, gt)
+
+    def _chamfer_loss_per_sample(self, pred, gt):
+        from utils.chamfer_loss_utils import chamfer_l1_per_sample
+        return chamfer_l1_per_sample(
+            pred,
+            gt,
+            cover_weight=self.cover_weight,
+            cover_critical_ratio=self.cover_critical_ratio,
+        )
+
+    def get_loss_per_sample(self, ret, gt, epoch=1):
+        """Per-sample total / sparse / recon losses, each shape (B,). For batch OHEM."""
+        pred_coarse, denoised_coarse, denoised_fine, pred_fine = ret[:4]
+        assert pred_fine.size(1) == gt.size(1)
+
+        idx = knn_point(self.factor, gt, denoised_coarse)
+        denoised_target = index_points(gt, idx).reshape(gt.size(0), -1, 3)
+        assert denoised_target.size(1) == denoised_fine.size(1)
+
+        per_denoised = self._chamfer_loss_per_sample(denoised_fine, denoised_target) * 0.5
+        per_coarse = self._chamfer_loss_per_sample(pred_coarse, gt)
+        per_fine = self._chamfer_loss_per_sample(pred_fine, gt)
+        per_recon = per_coarse + per_fine
+        per_total = per_denoised + per_recon
+        return per_total, per_denoised, per_recon
 
     def get_loss(self, ret, gt, epoch=1):
         pred_coarse, denoised_coarse, denoised_fine, pred_fine = ret[:4]
@@ -1084,19 +2495,32 @@ class AdaPoinTr_PGST(nn.Module):
         denoised_target = index_points(gt, idx) # B n k 3 
         denoised_target = denoised_target.reshape(gt.size(0), -1, 3)
         assert denoised_target.size(1) == denoised_fine.size(1)
-        loss_denoised = self.loss_func(denoised_fine, denoised_target)
+        loss_denoised = self._chamfer_loss(denoised_fine, denoised_target)
         loss_denoised = loss_denoised * 0.5
 
         # recon loss
-        loss_coarse = self.loss_func(pred_coarse, gt)
-        loss_fine = self.loss_func(pred_fine, gt)
+        loss_coarse = self._chamfer_loss(pred_coarse, gt)
+        loss_fine = self._chamfer_loss(pred_fine, gt)
 
         loss_recon = loss_coarse + loss_fine
 
         return loss_denoised, loss_recon
 
+    def _apply_msf_rebuild_route(self, q, route_feat, coor, query_pos):
+        if not self.use_msf_rebuild_route or route_feat is None or self.rebuild_route_proj is None:
+            return q
+        s_local = pool_msf_route_by_knn(
+            route_feat, coor, query_pos, k=self.msf_route_knn_k,
+        )
+        delta_q = self.rebuild_route_proj(s_local.to(dtype=q.dtype, device=q.device))
+        return q + delta_q
+
     def forward(self, xyz):
-        q, coarse_point_cloud, denoise_length = self.base_model(xyz) # B M C and B M 3
+        base_out = self.base_model(xyz)
+        q, coarse_point_cloud, denoise_length = base_out[0], base_out[1], base_out[2]
+        route_feat = base_out[3] if len(base_out) > 3 else None
+        coor = base_out[4] if len(base_out) > 4 else None
+        q = self._apply_msf_rebuild_route(q, route_feat, coor, coarse_point_cloud)
     
         B, M ,C = q.shape
 

@@ -1,0 +1,81 @@
+# single_MSF_trial: init AdaPoinTr_ps55, train MSF + 1 decoder block + rebuild head only.
+optimizer : {
+  type: AdamW,
+  part: gft_single_decoder,
+  trainable_decoder_block: 7,
+  pertoken_lr_scale: 1.0,
+  kwargs: {
+  lr : 0.0002,
+  weight_decay : 0.0005
+}}
+scheduler: {
+  type: LambdaLR,
+  kwargs: {
+  decay_step: 21,
+  lr_decay: 0.9,
+  lowest_decay: 0.02
+}}
+bnmscheduler: {
+  type: Lambda,
+  kwargs: {
+  decay_step: 21,
+  bn_decay: 0.5,
+  bn_momentum: 0.9,
+  lowest_decay: 0.01
+}}
+dataset : {
+  train : { _base_: cfgs/dataset_configs/PCN.yaml, 
+            others: {subset: 'train'}},
+  val : { _base_: cfgs/dataset_configs/PCN.yaml, 
+            others: {subset: 'val'}},
+  test : { _base_: cfgs/dataset_configs/PCN.yaml, 
+            others: {subset: 'test'}}}     
+model : {
+    NAME: AdaPoinTr_PGST, 
+    num_query: 512, 
+    num_points: 16384,
+    center_num: [512, 384],
+    global_feature_dim: 1024, 
+    encoder_type: graph,
+    decoder_type: fc,
+    use_sama: false,
+    use_mssa: false,
+    msf_route_mode: none,
+    use_msf_route_to_decoder: false,
+    encoder_config: {
+      embed_dim: 384,
+      depth: 6,
+      num_heads: 6,
+      k: 8,
+      n_group: 2,
+      mlp_ratio: 2.,
+      block_style_list: ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn'], 
+      combine_style: 'concat',
+      adapter_mode: 'msf_pure_group_sigmoid',
+    },
+    decoder_config: {
+      embed_dim: 384,
+      depth: 8,
+      num_heads: 6,
+      k: 8,
+      n_group: 2,
+      mlp_ratio: 2.,
+      self_attn_block_style_list: ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn'], 
+      self_attn_combine_style: 'concat',
+      cross_attn_block_style_list: ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn'], 
+      cross_attn_combine_style: 'concat',
+    },
+    loss_config: {
+      base_loss: 'cd_l1',
+      coarse_loss: 'cd_l1',
+      auxiliary_losses: {
+        laplacian: {enabled: false}
+      }
+    }
+}
+total_bs : 32
+step_per_update : 1
+max_epoch : 150
+val_freq: 10
+consider_metric: CDL1
+pretrained_ckpt: "ckpt/AdaPoinTr_ps55.pth"

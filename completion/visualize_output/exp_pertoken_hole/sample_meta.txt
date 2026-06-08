@@ -1,7 +1,0 @@
-seed=20260410
-chosen_categories=['chair', 'table', 'sofa', 'airplane']
-checkpoint=/home/fubenhao/data/fubenhao_data/PointGST-main_pure/completion/experiments/pertoken_core_gpu1_ratio384/PCN_models/exp_pertoken_hole/ckpt-best.pth
-sofa	0	2b69e899da0c15cfb40f0ac0fb9a650d	CD_L1_mm=8.4612	./visualize_output/exp_pertoken_hole/sofa_0_2b69e899da0c
-chair	0	49918114029ce6a63db5e7f805103dd	CD_L1_mm=9.0086	./visualize_output/exp_pertoken_hole/chair_0_49918114029c
-table	0	151c68b48a1359c58566c6c3bc94c70c	CD_L1_mm=5.1600	./visualize_output/exp_pertoken_hole/table_0_151c68b48a13
-airplane	0	2d7aff5577ae7af0d8ff6111270336a9	CD_L1_mm=3.4426	./visualize_output/exp_pertoken_hole/airplane_0_2d7aff5577ae

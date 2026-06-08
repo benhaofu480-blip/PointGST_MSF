@@ -1,0 +1,95 @@
+optimizer : {
+  type: AdamW,
+  part: gft,
+  pertoken_lr_scale: 1.0,
+  kwargs: {
+  lr : 0.00005,
+  weight_decay : 0.0005
+}}
+scheduler: {
+  type: CosLR,
+  kwargs: {
+  t_max: 51,
+  min_lr: 0.0000005,
+  initial_epochs: 0
+}}
+bnmscheduler: {
+  type: Lambda,
+  kwargs: {
+  decay_step: 21,
+  bn_decay: 0.5,
+  bn_momentum: 0.9,
+  lowest_decay: 0.01
+}}
+dataset : {
+  train : { _base_: cfgs/dataset_configs/PCN.yaml, 
+            others: {subset: 'train', sample_list_file: 'data/PCN_Core/pcn_core_train.txt'}},
+  val : { _base_: cfgs/dataset_configs/PCN.yaml, 
+            others: {subset: 'val'}},
+  test : { _base_: cfgs/dataset_configs/PCN.yaml, 
+            others: {subset: 'test'}}}     
+model : {
+    NAME: AdaPoinTr_PGST, 
+    num_query: 512, 
+    num_points: 16384,
+    center_num: [512, 384],
+    global_feature_dim: 1024, 
+    encoder_type: graph,
+    decoder_type: fc,
+    use_sama: false,
+    use_mssa: false,
+    msf_route_mode: none,
+    use_msf_route_to_decoder: false,
+    encoder_config: {
+      embed_dim: 384,
+      depth: 6,
+      num_heads: 6,
+      k: 8,
+      n_group: 2,
+      mlp_ratio: 2.,
+      block_style_list: ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn'], 
+      combine_style: 'concat',
+      adapter_mode: 'msf_pure_group_sigmoid',
+    },
+    decoder_config: {
+      embed_dim: 384,
+      depth: 8,
+      num_heads: 6,
+      k: 8,
+      n_group: 2,
+      mlp_ratio: 2.,
+      self_attn_block_style_list: ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn'], 
+      self_attn_combine_style: 'concat',
+      cross_attn_block_style_list: ['attn-graph', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn', 'attn'], 
+      cross_attn_combine_style: 'concat',
+    },
+    loss_config: {
+      base_loss: 'cd_l1',
+      coarse_loss: 'cd_l1',
+      cover_weight: 0.0,
+      cover_critical_ratio: 0.0,
+      auxiliary_losses: {
+        laplacian: {enabled: false}
+      }
+    }
+}
+total_bs : 32
+step_per_update : 1
+max_epoch : 50
+val_freq: 5
+consider_metric: CDL1
+pretrained_ckpt: "experiments/AdaPoinTr_MSF_Pure_Group_sigmoid/PCN_models/exp_MSF_Pure_Group_sigmoid/ckpt-best.pth"
+# Exp1-OFF: single-pass finetune control (feedback disabled).
+feedback_training: {
+  enabled: false,
+  crop_ratio_min: 0.20,
+  crop_ratio_max: 0.40,
+  pass_weight_first: 2.0,
+  pass_weight_second: 1.0,
+}
+ohem: {
+  enabled: false,
+  keep_ratio: 0.70,
+  mode: hard,
+  soft_max_weight: 2.0,
+}

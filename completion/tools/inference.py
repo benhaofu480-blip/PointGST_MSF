@@ -33,6 +33,16 @@ def get_args():
         default=False,
         help='whether to save img of complete point cloud') 
     parser.add_argument(
+        '--normalize_input',
+        action='store_true',
+        default=False,
+        help='normalize input point cloud to unit sphere before inference')
+    parser.add_argument(
+        '--restore_output',
+        action='store_true',
+        default=False,
+        help='restore dense output to original input scale when input was normalized')
+    parser.add_argument(
         '--out_pc_root',
         type=str,
         default='',
@@ -57,12 +67,13 @@ def inference_single(model, pc_path, args, config, root=None):
     # read single point cloud
     pc_ndarray = IO.get(pc_file).astype(np.float32)
     # transform it according to the model 
-    if config.dataset.train._base_['NAME'] == 'ShapeNet':
-        # normalize it to fit the model on ShapeNet-55/34
-        centroid = np.mean(pc_ndarray, axis=0)
-        pc_ndarray = pc_ndarray - centroid
-        m = np.max(np.sqrt(np.sum(pc_ndarray**2, axis=1)))
-        pc_ndarray = pc_ndarray / m
+    dataset_name = config.dataset.train._base_['NAME']
+    normalize_input = args.normalize_input
+    if dataset_name in ['KITTI', 'ShapeNet', 'PCN']:
+        normalize_input = True if not normalize_input else normalize_input
+    normalize_meta = None
+    if normalize_input:
+        pc_ndarray, normalize_meta = misc.normalize_point_cloud_unit_sphere(pc_ndarray, return_transform=True)
 
     transform = Compose([{
         'callback': 'UpSamplePoints',
@@ -79,11 +90,11 @@ def inference_single(model, pc_path, args, config, root=None):
     # inference
     ret = model(pc_ndarray_normalized['input'].unsqueeze(0).to(args.device.lower()))
     dense_points = ret[-1].squeeze(0).detach().cpu().numpy()
-
-    if config.dataset.train._base_['NAME'] == 'ShapeNet':
-        # denormalize it to adapt for the original input
-        dense_points = dense_points * m
-        dense_points = dense_points + centroid
+    if args.restore_output and normalize_meta is not None:
+        dense_points = misc.denormalize_point_cloud_unit_sphere(dense_points, normalize_meta)
+        pc_ndarray_for_vis = misc.denormalize_point_cloud_unit_sphere(pc_ndarray, normalize_meta)
+    else:
+        pc_ndarray_for_vis = pc_ndarray_normalized['input'].numpy()
 
     if args.out_pc_root != '':
         target_path = os.path.join(args.out_pc_root, os.path.splitext(pc_path)[0])
@@ -91,7 +102,7 @@ def inference_single(model, pc_path, args, config, root=None):
 
         np.save(os.path.join(target_path, 'fine.npy'), dense_points)
         if args.save_vis_img:
-            input_img = misc.get_ptcloud_img(pc_ndarray_normalized['input'].numpy())
+            input_img = misc.get_ptcloud_img(pc_ndarray_for_vis)
             dense_img = misc.get_ptcloud_img(dense_points)
             cv2.imwrite(os.path.join(target_path, 'input.jpg'), input_img)
             cv2.imwrite(os.path.join(target_path, 'fine.jpg'), dense_img)

@@ -227,11 +227,74 @@ def get_ptcloud_img(ptcloud):
     return img
 
 
+def normalize_point_cloud_unit_sphere(point_cloud, return_transform=False, eps=1e-12):
+    """Normalize a [N, 3] point cloud to unit sphere.
+
+    Returns:
+        Normalized point cloud when return_transform=False.
+        (normalized, transform_meta) when return_transform=True.
+    """
+    assert point_cloud.ndim == 2 and point_cloud.shape[1] == 3
+    center = np.mean(point_cloud, axis=0)
+    radius = np.sqrt(np.sum((point_cloud - center) ** 2, axis=1)).max()
+    if radius < eps:
+        radius = 1.0
+    normalized = (point_cloud - center) / radius
+    if return_transform:
+        return normalized, {
+            'unit_sphere_center': center.astype(np.float32),
+            'unit_sphere_scale': float(radius),
+        }
+    return normalized
+
+
+def denormalize_point_cloud_unit_sphere(point_cloud, sphere_meta):
+    """Inverse operation of normalize_point_cloud_unit_sphere."""
+    if sphere_meta is None:
+        return point_cloud
+    if isinstance(point_cloud, torch.Tensor):
+        center = torch.as_tensor(sphere_meta['unit_sphere_center'], dtype=point_cloud.dtype, device=point_cloud.device)
+        scale = torch.as_tensor(sphere_meta['unit_sphere_scale'], dtype=point_cloud.dtype, device=point_cloud.device)
+        return point_cloud * scale + center
+    center = np.asarray(sphere_meta['unit_sphere_center'])
+    scale = float(sphere_meta['unit_sphere_scale'])
+    return point_cloud * scale + center
+
+
+def denormalize_kitti_point_cloud(point_cloud, kitti_meta):
+    """Restore KITTI points from unit sphere + pose-normalized space to original scale."""
+    if kitti_meta is None:
+        return point_cloud
+    if isinstance(point_cloud, torch.Tensor):
+        restored = denormalize_point_cloud_unit_sphere(point_cloud, kitti_meta)
+        matrix = torch.as_tensor(kitti_meta['restore_matrix'], dtype=restored.dtype, device=restored.device)
+        bias = torch.as_tensor(kitti_meta['restore_bias'], dtype=restored.dtype, device=restored.device)
+        return restored @ matrix + bias
+    restored = denormalize_point_cloud_unit_sphere(np.asarray(point_cloud), kitti_meta)
+    matrix = np.asarray(kitti_meta['restore_matrix'], dtype=np.float32)
+    bias = np.asarray(kitti_meta['restore_bias'], dtype=np.float32)
+    return restored @ matrix + bias
+
 
 def visualize_KITTI(path, data_list, titles = ['input','pred'], cmap=['bwr','autumn'], zdir='y', 
-                         xlim=(-1, 1), ylim=(-1, 1), zlim=(-1, 1) ):
+                         xlim=None, ylim=None, zlim=None):
     fig = plt.figure(figsize=(6*len(data_list),6))
-    cmax = data_list[-1][:,0].max()
+    if xlim is None or ylim is None or zlim is None:
+        concat = np.concatenate([np.asarray(d) for d in data_list], axis=0)
+        bound = np.max(np.abs(concat))
+        if np.isnan(bound) or bound <= 0:
+            bound = 1.0
+        bound *= 1.1
+        if xlim is None:
+            xlim = (-bound, bound)
+        if ylim is None:
+            ylim = (-bound, bound)
+        if zlim is None:
+            zlim = (-bound, bound)
+
+    cmax = np.max(np.abs(data_list[-1][:,0]))
+    if cmax == 0:
+        cmax = 1.0
 
     for i in range(len(data_list)):
         data = data_list[i][:-2048] if i == 1 else data_list[i]
@@ -252,8 +315,8 @@ def visualize_KITTI(path, data_list, titles = ['input','pred'], cmap=['bwr','aut
     pic_path = path + '.png'
     fig.savefig(pic_path)
 
-    np.save(os.path.join(path, 'input.npy'), data_list[0].numpy())
-    np.save(os.path.join(path, 'pred.npy'), data_list[1].numpy())
+    np.save(os.path.join(path, 'input.npy'), np.asarray(data_list[0]))
+    np.save(os.path.join(path, 'pred.npy'), np.asarray(data_list[1]))
     plt.close(fig)
 
 
